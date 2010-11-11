@@ -1,0 +1,23 @@
+html, body {width:100%;height:100%;padding:0;margin:0;font-family:Helvetica, Arial, sans-serif;font-size:14px;}
+h1, h2, h3, h4, div {padding:0;margin:0;}
+a {color:#333;cursor:pointer;}
+a:hover {color:#111;}
+.shadow {box-shadow:3px 3px 15px #222;-moz-box-shadow:3px 3px 15px #222;-webkit-box-shadow:3px 3px 15px #222;}
+.styled_text {color:#222;font-family: "Georgia";font-style:italic;text-shadow:#ddd -1px -1px 1px;letter-spacing:2px;word-spacing:5px;}
+.radius {-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;}
+.radius_tr {-moz-border-radius-topright:5px; -webkit-border-top-right-radius:5px; border-top-right-radius: 5px;}
+.radius_tl {-moz-border-radius-topleft:5px; -webkit-border-top-left-radius:5px; border-top-left-radius: 5px;}
+.radius_br {-moz-border-radius-bottomright:5px; -webkit-border-bottom-right-radius:5px; border-bottom-right-radius: 5px;}
+.radius_bl {-moz-border-radius-bottomleft:5px; -webkit-border-bottom-left-radius:5px; border-bottom-left-radius: 5px;}
+
+#moobox {z-index:1000;position:fixed;background-color:white;padding:10px 10px 30px;border:5px solid #ccc;}
+#moobox.loading {background:white url(img/loading.gif) center center no-repeat;}
+#moobox_content {position:relative;display:block;}
+#moobox_content:after {content:"\0020";display:block;height:0;clear:both;visibility:hidden;overflow:hidden;}
+#moobox.loading #moobox_content {background-color:transparent;width:200px;height:200px;}
+#moobox_overlay {position:fixed;width:100%;height:100%;top:0;left:0;z-index:999;background:transparent url(img/overlay.png) top left repeat;}
+#moobox_footer {background-color:#eaeaea;text-align:right;position:absolute;left:10px;right:10px;padding:0 10px;margin:0 -10px;bottom:0px;height:20px;line-height:20px;border-top:1px solid #ddd;}
+#moobox_footer h2 {float:left;font-size:14px;}
+#moobox_footer a {text-decoration:none;text-transform:uppercase;}
+#moobox_test {padding:0;margin:0;}
+#moobox_footer a.moobox_disabled {color:#ccc;}

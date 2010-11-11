@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:svg="http://www.w3.org/2000/svg">
+	<head>
+		<title>Moobox Example</title>
+		<meta name="title" content="Moobox Example" />
+    <meta name="keywords" content="lightbox modal window mootools javascript" />
+    <meta name="description" content="Moobox is a lightbox built on the Mootools javascript framework allowings images, remote pages, local pages, and inline content." />
+    <meta name="author" content="Mike Nelson" />
+    <meta name="copyright" content="Mike Nelson" />
+    <meta name="robots" content="index,follow" />
+		<meta name="MSSmartTagsPreventParsing" content="true" />
+		
+		<link rel="stylesheet" href="style.css" type="text/css" media="screen, projection" />	
+		<script type="text/javascript" src="mootools.js"></script>
+		<script type="text/javascript" src="mootools_more.js"></script>	
+	  <script type="text/javascript" src="moobox.js"></script>
+	</head>
+  <body>
+    <ul>
+      <li><a href="http://blogs.targetx.com/hbu/DawgTracks/fall-leaves.jpg" rel="moobox[test]">Image</a></li>
+      <li><a href="http://www.google.com" rel="moobox[test]" title="Remote Page">Remote Page</a></li>
+      <li><a href="#inline" rel="moobox[test]">Inline Content</a></li>
+      <li><a href="#inline2" rel="moobox[test]">Hidden Inline Content</a></li>
+      <li><a href="#inline3" rel="moobox" title="Hidden Content">Flowing Inline Content</a></li>
+      <li><a href="#inline4" rel="moobox" title="Large Hidden Content">Large Hidden Content</a></li>
+    </ul>
+  
+    <div id="inline">
+      <h2>Here's an example of the inline content</h2>
+    </div>
+    
+    <div id="inline2" style="display:none;">
+      <h2>This content is also on the page, but hidden.</h2>
+    </div>
+    
+    <div id="inline3" style="display:none;">
+      <h2>This content is also on the page, but hidden. It should have a title of "Hidden Content" and not be part of the group.</h2>
+    </div>
+    
+    <div id="inline4" style="width:950px;height:30px;display:block;border:2px solid red;">
+      <h2>This content is too large so it'll be shrunk down if needed.</h2>
+    </div>
+  
+    <script type="text/javascript" charset="utf-8">
+      window.addEvent("domready", function(){
+      window.moobox = new Moobox({ box : {classes : 'radius shadow', resizeTransition : Fx.Transitions.Sine.easeOut}, 
+                                   footer : {fadeDuration : 250},
+                                   iframe : {width : 850, height : 550},
+                                   controls : {parent : 'moobox_footer', prevClasses : 'radius_tr radius_br', nextClasses : 'radius_tl radius_bl'}});
+      });
+    </script>
+  </body>
+</html>
