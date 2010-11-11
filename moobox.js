@@ -30,8 +30,8 @@ var Moobox = new Class({
       injectLocation : 'bottom',
       nextID : 'moobox_next',
       prevID : 'moobox_prev',
-      nextText : 'next',
-      prevText : 'prev',
+      nextText : '<u>n</u>ext',
+      prevText : '<u>p</u>rev',
       disabledClass : 'moobox_disabled',
       prevClasses : '',
       nextClasses : ''
@@ -127,8 +127,7 @@ var Moobox = new Class({
   },
   showFooter : function(){
     this.footer.setStyle('display', '');
-    this.fx.footer.start(1).chain(function(){
-    }.bind(this));
+    this.fx.footer.start(1);
   },
   applyContent : function(content){
     this.fireEvent('contentRemoved', this.currentContent);
