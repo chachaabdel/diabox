@@ -20,4 +20,4 @@ a:hover {color:#111;}
 #moobox_footer a.moobox_disabled {color:#ccc;}
 #moobox_close {float:right;}
 #moobox_prev, #moobox_next {float:left;margin-right:5px;}
-#moobox_loading {width:200px;height:200px;background:white url(img/loading.gif) center center no-repeat}
+#moobox.loading {background:white url(img/loading.gif) center center no-repeat}

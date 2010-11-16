@@ -63,7 +63,12 @@
       overlay : {
         id : 'moobox_overlay',
         fade_duration : 400,
+        opacity : 0.7,
         transition : Fx.Transitions.Sine.easeOut
+      },
+      gdoc : {
+        width : 850,
+        height : 500
       }
     },
     
@@ -75,6 +80,7 @@
       this.observe_anchors();
       this.observe_objects();
       
+      window.addEvent('resize', this.relocate.bind(this));
       window.addEvent('domready', this.create_fx.bind(this));
     },
     
@@ -97,6 +103,7 @@
     
     // register the default renderers. to override call register_renderer with the appropriate arguments
     register_renderers : function(){
+      this.register_renderer('gdoc', Moobox.GDocRenderer);
       this.register_renderer('image', Moobox.ImageRenderer);
       this.register_renderer('ajax', Moobox.AjaxRenderer);
       this.register_renderer('remote', Moobox.RemoteRenderer);
@@ -140,6 +147,7 @@
         overlay : new Fx.Tween(this.overlay(), {property : 'opacity', duration : this.options.overlay.fade_duration, transition : this.options.overlay.transition}).set(0),
         box : new Fx.Tween(this.box(), {property : 'opacity', duration : this.options.box.fade_duration, transition : this.options.box.fade_transition}).set(0),
         resize : new Fx.Morph(this.box(), {duration : this.options.box.resize_duration, transition : this.options.box.resize_transition}),
+        relocate : new Fx.Morph(this.box(), {duration : 0}),
         content : new Fx.Tween(this.content(), {property : 'opacity', duration : this.options.box.content_fade_duration, transition : this.options.box.content_fade_transition})
       };
     },
@@ -149,11 +157,15 @@
     },
     
     set_loading : function(){
-      this.clear_content();
-      this.loading_renderer().render();
+      if(!this.showing()){
+        this.show();
+        this.apply_content(this.loading_renderer());
+      }
+      this.box().addClass('loading');
     },
     
     show : function(fn){
+      if(this.showing()) return;
       this.overlay().setStyle('display', '');
       this.box().setStyle('display', '');
       this.content().fade('hide');
@@ -166,25 +178,29 @@
     
     hide : function(){
       this.fx.content.start(0).chain(function(){
+        this.clear_content();
         this.fx.box.start(0).chain(function(){this.box().setStyle('display', 'none');}.bind(this));
         this.fx.overlay.start(0).chain(function(){this.overlay().setStyle('display', 'non');}.bind(this));
       }.bind(this))
     },
     
     showing : function(){
-      return this.box().getStyle('display') != 'none';
+      return !!this.current_content;
     },
     
     clear_content : function(){
+      this.box().removeClass('loading');
       this.content().empty();
+      this.current_content = null;
     },
     
-    apply_content : function(element){
-      this.content().adopt(element);
+    apply_content : function(renderer){
+      this.clear_content();
+      this.current_content = renderer;
+      this.content().adopt(renderer.element());
     },
     
     resize_and_apply : function(renderer){
-      console.log(renderer);
       var fn = function(){  
         var size = this.cumulative_size(renderer);
         var pos = this.next_position(size); 
@@ -194,13 +210,24 @@
           left : pos.left,
           top : pos.top
         }).chain(function(){
-          this.apply_content(renderer.element());
+          this.apply_content(renderer);
         }.bind(this));
       }.bind(this);
       if(this.showing()){
         fn();
       } else {
         this.show(fn);
+      }
+    },
+    
+    relocate : function(){
+      if(this.showing()){
+        var size = this.cumulative_size(this.current_content);
+        var pos = this.next_position(size);
+        this.fx.relocate.start({
+          left : pos.left,
+          top : pos.top
+        });
       }
     },
     
@@ -213,8 +240,8 @@
     
     next_position : function(next_size){
       return {
-        top : [parseInt((window.getSize().height / 2.0) - (next_size.height / 2.0)), 0].max(),
-        left : [parseInt((window.getSize().width / 2.0) - (next_size.width / 2.0)), 0].max()
+        left : [parseInt((window.getSize().x - next_size.width) / 2.0), 0].max(),
+        top : [parseInt((window.getSize().y - next_size.height) / 2.0), 0].max()
       };
     },
     
@@ -237,10 +264,12 @@
       if(typeOf(target) == 'element')
         return 'element';
       else if(typeOf(target) == 'string'){
-        if(target.test(/#/i)){ 
-          return 'inline';
-        } else if(target.test(/\.(png|jpg|jpeg|gif)$/i)){
+        if(target.test(/\.(ppt|PPT|tif|TIF|pdf|PDF)$/i)) {
+          return 'gdoc';
+        } else if(target.test(/\.(png|PNG|jpg|JPG|jpeg|JPEG|gif|GIF)$/i)){
           return 'image';
+        } else if(target.test(/#/i)){ 
+            return 'inline';
         } else if(!target.test(RegExp('^((http:\\/\\/|)' + window.location.hostname + '|\\/)'))) {
           return 'remote';
         } else {
@@ -332,6 +361,14 @@
     }
   });
   
+  Moobox.GDocRenderer = new Class({
+    Extends : Moobox.RemoteRenderer,
+    initialize : function(target, moobox){
+      this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, moobox);
+    }
+  });
+  
+  
   Moobox.ElementRenderer = new Class({
     Extends : Moobox.Renderer,
     render : function(){
@@ -343,7 +380,8 @@
   Moobox.InlineRenderer = new Class({
     Extends : Moobox.Renderer,
     render : function(){
-      if(!this.elements) this.elements = $(this.target.substring(this.target.indexOf('#' + 1))).clone(true, false);
+      if(!this.elements) this.elements = $(this.target.substring(this.target.indexOf('#') + 1)).clone(true, false);
+      if(this.elements.getStyle('display') == 'none') this.elements.setStyle('display', '');
       this.fireEvent('ready');
     }
   });
