@@ -13,9 +13,9 @@
 		<link rel="stylesheet" href="style.css" type="text/css" media="screen, projection" />	
 		<script type="text/javascript" src="mootools.js"></script>
 		<script type="text/javascript" src="mootools_more.js"></script>	
-	  <script type="text/javascript" src="moobox.js"></script>
+	  <script type="text/javascript" src="moobox2.js"></script>
 	</head>
-  <body>
+  <body id="page">
     <ul>
       <li><a href="http://blogs.targetx.com/hbu/DawgTracks/fall-leaves.jpg" rel="moobox[test]">Image</a></li>
       <li><a href="http://www.google.com" rel="moobox[test]" title="Remote Page">Remote Page</a></li>
@@ -43,10 +43,7 @@
   
     <script type="text/javascript" charset="utf-8">
       window.addEvent("domready", function(){
-      window.moobox = new Moobox({ box : {classes : 'radius shadow', resizeTransition : Fx.Transitions.Sine.easeOut}, 
-                                   footer : {fadeDuration : 250, closeText : 'X'},
-                                   iframe : {width : 850, height : 550},
-                                   controls : {parent : 'moobox_footer', prevClasses : 'radius_tr radius_br', nextClasses : 'radius_tl radius_bl'}});
+        window.moobox = new Moobox();
       });
     </script>
   </body>
