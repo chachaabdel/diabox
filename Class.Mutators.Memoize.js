@@ -33,10 +33,7 @@ Class.Mutators.Memoize = function(method_names){
     this.__memoized[key] = undefined;
     return val;
   }
-  
-  this.prototype.unmemoizeAll = function(){
-    this.__memoized = {};
-  }
-  
+  this.prototype.unmemoizeAll = function(){ this.__memoized = {}; }
   this.prototype.unmemoizeAll();
+
 }
