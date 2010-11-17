@@ -24,79 +24,89 @@ provides: [Moobox]
   if(!Class.Mutators.Memoize){
     try{ console.error("MOOBOX: Please include the Memoize plugin: http://mootools.net/forge/p/mootols_memoize")} catch(e){}
   } else {
-  
-    // Handles all the event binding, firing, and target parsing.
+
     Moobox = new Class({
     
       Implements: [Options, Events, Chain],
       options : {
-        parser : null, // pass in a function that takes a target (url, dom element, etc) and passes back a renderer key
-        parent : null,
-        iframe : {
-          width : 850,
-          height: 575
-        },
-        image : {
-          maxWidth : 850,
-          maxHeight : 575
-        },
-        box : {
-          id : 'moobox',
-          content_id : 'moobox_content',
-          loading_id : 'moobox_loading',
-          fade_duration : 400,
-          resize_duration : 400,
-          content_fade_duration : 200,
+        parser : null,                          // pass in a function that takes a target (url, dom element, etc) and passes back a renderer key
+        parent : null,                          // the element that moobox and it's overlay are children of; null will use the body element
+        iframe : {                              
+          width : 850,                          // the content width of an iframe renderer
+          height: 575                           // the content height of an iframe renderer
+        },                                      
+        image : {                               
+          maxWidth : 850,                       // the max image width of an image renderer
+          maxHeight : 575                       // the max image height of an image renderer
+        },                                      
+        box : {                                 
+          id : 'moobox',                        // the id of the modal window
+          content_id : 'moobox_content',        // the id of the content div inside the modal window
+          loading_id : 'moobox_loading',        // the id of the loading div that get's injected while no other content is present
+          fade_duration : 400,                  // the fade in and fade out duration for the modal window
+          resize_duration : 400,                // the duration when the box is resizing before applying the next content
+          content_fade_duration : 200,          // the duration it takes for the content to appear after being added to the modal window
           fade_transition : Fx.Transitions.Sine.easeOut,
           resize_transition : Fx.Transitions.Back.easeOut,
           content_fade_transition : Fx.Transitions.Sine.easeOut,
-          classes : '',
-          max_width : 900,
-          max_height : 700,
-          min_width: 100,
-          min_height : 130,
-          gallery_class : 'moobox_gallery'
-        },
-        title : {
-          id : 'moobox_title',
-          default_text : null,
-          show : true,
-          show_gallery_index : true,
-          parent : null
-        },
-        overlay : {
-          id : 'moobox_overlay',
-          fade_duration : 400,
-          opacity : 0.7,
+          classes : '',                         // classes to add to the modal window
+          loading_class : 'loading',            // class that's added to the modal window when data is loading.
+          max_width : 900,                      // the maximum width the modal window can be
+          max_height : 700,                     // the maximum height the modal window can be
+          min_width: 100,                       // the minimum width the modal window can be
+          min_height : 130                      // the minimum height the modal window can be
+        },                                      
+        gallery : {                             
+          enabled : true,                       // allow galleries to be created and iterated through
+          box_class : 'moobox_gallery',         // the class that gets added to the modal window when a gallery is present
+          slideshow_class : 'moobox_slideshow', // the class that gets added to the modal window when a slideshow is running
+          slideshow_duration : 5000,            // the amount of time each content in the gallery stays present
+          autostart : false,                    // start the slideshow whenever a gallery is shown
+          loop : false                          // allow iteration from first to last and last to first  
+        },                                      
+        title : {                               
+          id : 'moobox_title',                  // the id of the title element
+          default_text : null,                  // a default title
+          show : true,                          // show titles
+          show_gallery_index : true,            // show the current page of the gallery (1 / 3), (3 / 5), etc
+          parent : null                         // the parent element of the title (id or element)
+        },                                      
+        overlay : {                             
+          id : 'moobox_overlay',                // id of the overlay
+          fade_duration : 400,                  // amount of time for the overlay to fade in
+          opacity : 0.7,                        // the end opacity of the overlay
           transition : Fx.Transitions.Sine.easeOut
         },
         gdoc : {
-          width : 850,
-          height : 500
+          width : 850,                          // the width of a pdf, tiff, or ppt
+          height : 500                          // the height of a pdf, tiff, or ppt
         },
         controls : {
-          next_id : 'moobox_next',
-          prev_id : 'moobox_prev',
-          close_id : 'moobox_close',
-          next_text : 'next',
-          prev_text : 'prev',
-          close_text : 'close',
-          show_close : true,
-          enable_shortcuts : true,
-          key_command : null,
-          classes : 'moobox_control',
-          disabled_class : 'moobox_disabled',
-          parent : null
+          next_id : 'moobox_next',              // id of the next button
+          prev_id : 'moobox_prev',              // id of the previous button
+          close_id : 'moobox_close',            // id of the close button
+          play_id : 'moobox_play',              // id of the play button
+          next_text : 'next',                   // text of the next button (html ok)
+          prev_text : 'prev',                   // text of the prev button (html ok)
+          close_text : 'close',                 // text of the close button (html ok)
+          play_text : 'start / stop',           // text of the play button (html ok)
+          show_close : true,                    // display the close button
+          enable_shortcuts : true,              // allow keyboard shortcuts, by default only ESC is implemented
+          key_command : null,                   // function to call when a key command (not ESC) is fired. return false to stop propogation
+          classes : 'moobox_control',           // class that's added to all control elements (prev, next, close, play)
+          disabled_class : 'moobox_disabled',   // the class that's added to control elements when they should be disabled
+          parent : null                         // the parent of the control elements, by default the modal window
         }
       },
     
       initialize : function(options){
         this.setOptions(options);
         this.opt = this.options;
+        
         this.cache = {};
         this.galleries = {};
+        
         this.register_renderers();
-      
         this.observe_anchors();
         this.observe_objects();
         this.observe_key_strokes();
@@ -106,16 +116,18 @@ provides: [Moobox]
         
       },
     
-      // dom shortcuts
+      // dom / control shortcuts
       host : function(){ return $(this.opt.parent || document.body); },  
       content : function(){ return new Element('div', {id : this.opt.box.content_id}).inject(this.box()); },
       box : function(){ return new Element('div', {id : this.opt.box.id}).addClass(this.opt.box.classes).setStyle('display', 'none').inject(this.host()); },  
       overlay : function(){ return new Element('div', {id : this.opt.overlay.id}).setStyle('display','none').inject(this.host()).addEvent('click', this.hide.bind(this)); },
       next : function(){ this.prev(); return new Element('a', {id : this.opt.controls.next_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.next_text).addEvent('click', this.go_next.bind(this)).inject($(this.opt.controls.parent || this.box())); },
-      prev : function(){ return new Element('a', {id : this.opt.controls.prev_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.prev_text).addEvent('click', this.go_prev.bind(this)).inject($(this.opt.controls.parent || this.box())); },
+      play : function(){ return new Element('a', {id : this.opt.controls.play_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.play_text).addEvent('click', this.toggle_slideshow.bind(this)).inject($(this.opt.controls.parent || this.box())); },
+      prev : function(){ this.play(); return new Element('a', {id : this.opt.controls.prev_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.prev_text).addEvent('click', this.go_prev.bind(this)).inject($(this.opt.controls.parent || this.box())); },
       close : function(){ this.next();return new Element('a', {id : this.opt.controls.close_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.close_text).addEvent('click', this.hide.bind(this)).inject($(this.opt.controls.parent || this.box())); },
       title : function(){ return new Element('strong', {id : this.opt.title.id}).set('html', this.opt.title.default_text || '').inject($(this.opt.title.parent || this.box()))},
-    
+      
+      // register all the default renderers
       register_renderers : function(){
         this.renderer_classes = {};
         this.register_renderer('gdoc', Moobox.GDocRenderer);
@@ -126,22 +138,23 @@ provides: [Moobox]
         this.register_renderer('element', Moobox.ElementRenderer);
       },
     
-      // registers a renderer via an event. no renderers are stored in the Moobox object.
+      // register a class as a renderer for a specific target key
       register_renderer : function(key, renderer_klazz){
         this.renderer_classes[key] = renderer_klazz;
       },
     
+      // construct a new renderer object unless one's already built and stored in the cache
       construct_renderer : function(target, title){
         if(this.cache[target]) return this.cache[target];
         return (this.cache[target] = new (this.renderer_classes[this.parse_target(target)])(target, title, this));
       },
     
-      // find all the anchors that match the provided rel regex. observe clicks on them and fire the renderer.
+      // observe clicks on all valid links and fire a render event based on the link's attributes.
       observe_anchors : function(){
         this.links = $$('a').each(function(a){
           if(a.rel && a.rel.test(/^(moo|light)box/)){
           
-            if(a.rel.test(/box\[(\w+)\]$/))
+            if(this.opt.gallery.enabled && a.rel.test(/box\[(\w+)\]$/))
               this.galleries[RegExp.$1] = this.galleries[RegExp.$1] || new Moobox.Gallery(RegExp.$1, this);
             
             a.addEvent('click', function(){
@@ -153,17 +166,20 @@ provides: [Moobox]
         }, this);
       },
     
+      // resize and apply a renderer when it announces that it's ready
       observe_objects : function(){
         this.addEvent('render_ready', function(renderer){
           this.resize_and_apply(renderer);
         }.bind(this));
       },
       
+      // observe key strokes that are propogated to the body
       observe_key_strokes : function(){
         if(!this.opt.controls.enable_shortcuts) return;
         window.addEvent('domready', function(){ $(document.body).addEvent('keyup', this.key_stroke.bind(this));}.bind(this))
       },
       
+      // handle a key event. close when ESC is pressed or pass to provided function
       key_stroke : function(event){
         if(!this.showing()) return;
         if(event.code == 27) {
@@ -173,6 +189,7 @@ provides: [Moobox]
           return this.opt.controls.key_command(event);
       },
       
+      // create fx objects to allow easy chaining
       create_fx : function(){
         this.fx = {
           overlay : new Fx.Tween(this.overlay(), {property : 'opacity', duration : this.opt.overlay.fade_duration, transition : this.opt.overlay.transition}).set(0),
@@ -183,10 +200,12 @@ provides: [Moobox]
         };
       },
     
+      // the temporary renderer that's displayed when no others are present
       loading_renderer : function(){
-        return new Moobox.ElementRenderer(new Element('div', {id : this.opt.box.loading_id}), this);
+        return new Moobox.ElementRenderer(new Element('div', {id : this.opt.box.loading_id}), null, this);
       },
     
+      // apply the loading renderer and add a loading class to the box
       set_loading : function(){
         if(!this.showing()){
           this.show();
@@ -194,46 +213,61 @@ provides: [Moobox]
         } else {
           this.clear_content();
         }
-        this.box().addClass('loading');
+        this.box().addClass(this.opt.box.loading_class);
       },
     
+      // set the title and handle gallery information
       set_title : function(text){
         this.title().empty();
         this.title().adopt([
-          new Element('strong', {text : text}),
-          this.current_content.gallery && this.opt.title.show_gallery_index ? new Element('em', {text : "(" + (this.current_content.gallery.current_index + 1) + " / " + this.current_content.gallery.renderers().length + ")"}) : null
+          new Element('strong').set('html', text),
+          (this.current_content.gallery && this.opt.title.show_gallery_index ? new Element('em').set('html', "(" + (this.current_content.gallery.current_index + 1) + " / " + this.current_content.gallery.renderers().length + ")") : null)
         ]);
       },
-    
+      
+      // go to the next page in gallery
       go_next : function(){
         if(this.current_content && this.current_content.gallery) this.current_content.gallery.next();
         return false;
       },
-    
+      
+      // go to the previous page in gallery
       go_prev : function(){
         if(this.current_content && this.current_content.gallery) this.current_content.gallery.prev();
         return false;
       },
+      
+      // start or stop the slideshow
+      toggle_slideshow : function(){
+        if(this.current_content && this.current_content.gallery)
+          this.current_content.gallery.toggle_slideshow();
+        return false;
+      },
     
+      // disable the next button
       disable_next : function(){
         this.next().addClass(this.opt.controls.disabled_class);
       },
     
+      // disable the previous button
       disable_prev : function(){
         this.prev().addClass(this.opt.controls.disabled_class);
       },
     
+      // enable the next and previous buttons
       enable_controls : function(){
         this.next().removeClass(this.opt.controls.disabled_class);
         this.prev().removeClass(this.opt.controls.disabled_class);
       },
     
+      // reveal text or html directly to this moobox
       reveal : function(text_or_html, title){
         var r = new Moobox.ElementRenderer(new Element('div').set('html', text_or_html), title, this);
         r.render();
         return r;
       },
     
+      // show the window then execute fn when the content is in the dom (before it's revealed)
       show : function(fn){
         if(this.showing()) return;
         this.overlay().setStyle('display', '');
@@ -246,11 +280,12 @@ provides: [Moobox]
         }.bind(this));
       },
     
+      // hide the window, fading each element out.
       hide : function(){
         this.fx.content.start(0).chain(function(){
           this.clear_content();
           this.fx.box.start(0).chain(function(){
-            this.box().removeClass(this.opt.box.gallery_class);
+            this.box().removeClass(this.opt.gallery.box_class);
             this.box().setStyle('display', 'none');
           }.bind(this));
           this.fx.overlay.start(0).chain(function(){this.overlay().setStyle('display', 'none');}.bind(this));
@@ -258,47 +293,56 @@ provides: [Moobox]
         this.fireEvent('moobox_hidden');
       },
     
+      // is the box visible right now?
       showing : function(){
         return !!this.current_content;
       },
     
+      // remove the content from the window
       clear_content : function(){
         this.box().removeClass('loading');
         this.content().empty();
         this.current_content = null;
       },
     
+      // apply a renderer to the window
       apply_content : function(renderer){
         this.clear_content();
         this.current_content = renderer;
         this.content().adopt(renderer.element());
-        this.apply_static_elements();
         this.fireEvent('moobox_content_applied');
+        this.apply_static_elements();
         renderer.after_render();
       },
     
+      // apply all the static buttons and title to the window
       apply_static_elements : function(){
         if(this.opt.controls.show_close) 
           this.close().setStyle('display', '');
         else
           this.close().setStyle('display', 'none');
         
-        if(this.current_content.gallery){
+        if(this.opt.gallery.enabled && this.current_content.gallery){
           this.next().setStyle('display', '');
           this.prev().setStyle('display', '');
+          this.play().setStyle('display', '');
         } else {
           this.next().setStyle('display', 'none');
           this.prev().setStyle('display', 'none');
+          this.play().setStyle('display', 'none');
         }
         if(this.opt.title.show && (this.current_content.title || this.opt.title.default_text || this.opt.title.show_gallery_index)){
+
           this.set_title(this.current_content.title || this.opt.box.default_title);
           this.title().setStyle('display', '');
         } else {
           this.set_title(null);
           this.title().setStyle('display', 'none');
         }
+        
       },
     
+      // show the box if necessary, resize the box to fit the next content, then apply it.
       resize_and_apply : function(renderer){
         var fn = function(){  
           var size = this.cumulative_size(renderer);
@@ -327,6 +371,7 @@ provides: [Moobox]
         }
       },
     
+      // relocate the box immediately when a window changes dimension
       relocate : function(){
         if(this.showing()){
           var size = this.cumulative_size(this.current_content);
@@ -338,6 +383,7 @@ provides: [Moobox]
         }
       },
     
+      // the cumulative size of the window based on specific content
       cumulative_size : function(renderer){
         return {
           width : renderer.dimensions().totalWidth + this.content_padding().width,
@@ -345,13 +391,18 @@ provides: [Moobox]
         };
       },
     
+      // the position of the window based on the next dimension
       next_position : function(next_size){
+        var csize = this.box().measure(function(){
+          return this.getComputedSize();
+        });
         return {
-          left : [parseInt((window.getSize().x - next_size.width) / 2.0), 0].max(),
-          top : [parseInt((window.getSize().y - next_size.height) / 2.0), 0].max()
+          left : [parseInt((window.getSize().x - (next_size.width + csize.computedLeft + csize.computedRight)) / 2.0), 0].max(),
+          top : [parseInt((window.getSize().y - (next_size.height + csize.computedTop + csize.computedBottom)) / 2.0), 0].max()
         };
       },
     
+      // the extra width based on the content div
       content_padding : function(){
         var cisize = this.content().measure(function(){
           return this.getComputedSize();
@@ -386,7 +437,7 @@ provides: [Moobox]
         return null;
       },
 
-      Memoize : ['loading_content', 'padding', 'host', 'content', 'box', 'overlay', 'next', 'prev', 'close', 'title']
+      Memoize : ['loading_content', 'padding', 'host', 'content', 'box', 'overlay', 'next', 'prev', 'close', 'title', 'play']
     });
   
     Moobox.Gallery = new Class({
@@ -394,38 +445,64 @@ provides: [Moobox]
         this.name = name;
         this.box = moobox;
         this.current_index = null;
+        this.slideshow = null;
         this.box.addEvent('moobox_hidden', function(){
           this.current_index = null;
+          this.stop_slideshow();
         }.bind(this));
         this.box.addEvent('moobox_content_applied', function(){
           if(this.box.current_content.gallery === this){
             this.current_index = this.renderers().indexOf(this.box.current_content);
-            if(this.current_index == this.renderers().length - 1) this.box.disable_next();
-            if(this.current_index == 0) this.box.disable_prev();
-            this.box.box().addClass(this.box.opt.box.gallery_class);
+            this.update_buttons();
+            this.box.box().addClass(this.box.opt.gallery.box_class);
+            if(this.box.opt.gallery.autostart)
+              this.start_slideshow();
           }
         }.bind(this))
         this.renderers();
       },
       next : function(){
-        if(this.box.current_content.gallery === this) {
-          if(this.current_index < this.renderers().length - 1) {
-            this.box.enable_controls();
-            this.box.set_loading();
-            this.renderers()[++this.current_index].render();
-            if(this.current_index == this.renderers().length - 1) this.box.disable_next();
-          }
+        if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index < this.renderers().length - 1)) {
+          this.box.enable_controls();
+          this.box.set_loading();
+          this.renderers()[(this.current_index < this.renderers().length - 1 ? ++this.current_index : (this.current_index = 0))].render();
+          this.update_buttons();
+          if(!this.box.opt.gallery.loop && this.current_index == this.renderers().length - 1)
+            this.stop_slideshow();
         }
       },
       prev : function(){
-        if(this.box.current_content.gallery === this) {
-          if(this.current_index > 0) {
-            this.box.enable_controls();
-            this.box.set_loading();
-            this.renderers()[--this.current_index].render();
-            if(this.current_index == 0) this.box.disable_prev();
-          }
+        if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index > 0)) {
+          this.box.enable_controls();
+          this.box.set_loading();
+          this.renderers()[(this.current_index > 0 ? --this.current_index : (this.current_index = this.renderers().length - 1))].render();
+          this.update_buttons();
         }
+      },
+      can_next : function(){ return this.box.opt.gallery.loop || this.current_index < (this.renderers().length - 1);},
+      can_prev : function(){ return this.box.opt.gallery.loop || this.current_index > 0;},
+      update_buttons : function(){
+        if(!this.can_next()){this.box.disable_next();}
+        if(!this.can_prev()){this.box.disable_prev();}
+      },
+      start_slideshow : function(){
+        if(this.playing()) return;
+        this.box.box().addClass(this.box.opt.gallery.slideshow_class);
+        this.slideshow = this.next.periodical(this.box.opt.gallery.slideshow_duration, this);
+      },
+      stop_slideshow : function(){
+        clearTimeout(this.slideshow);
+        this.slideshow = null;
+        this.box.box().removeClass(this.box.opt.gallery.slideshow_class);
+      },
+      toggle_slideshow : function(){
+        if(this.playing())
+          this.stop_slideshow();
+        else
+          this.start_slideshow();
+      },
+      playing : function(){
+        return !!this.slideshow;
       },
       renderers : function(){
         var rs = [];
