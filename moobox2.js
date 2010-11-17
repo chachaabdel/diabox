@@ -40,7 +40,6 @@
     options : {
       parser : null, // pass in a function that takes a target (url, dom element, etc) and passes back a renderer key
       parent : null,
-      rel_match : /^(moo|light)box/,
       iframe : {
         width : 800,
         height: 500
@@ -57,8 +56,14 @@
         resize_duration : 400,
         content_fade_duration : 200,
         fade_transition : Fx.Transitions.Sine.easeOut,
-        resize_transition : Fx.Transitions.Elastic.easeOut,
-        content_fade_transition : Fx.Transitions.Sine.easeOut
+        resize_transition : Fx.Transitions.Back.easeOut,
+        content_fade_transition : Fx.Transitions.Sine.easeOut,
+        classes : '',
+        max_width : 900,
+        max_height : 700,
+        min_width: 100,
+        min_height : 100,
+        gallery_class : 'moobox_gallery'
       },
       overlay : {
         id : 'moobox_overlay',
@@ -69,12 +74,25 @@
       gdoc : {
         width : 850,
         height : 500
+      },
+      controls : {
+        next_id : 'moobox_next',
+        prev_id : 'moobox_prev',
+        close_id : 'moobox_close',
+        next_text : 'next',
+        prev_text : 'prev',
+        close_text : 'close',
+        show_close : true,
+        enable_shortcuts : true,
+        class : 'moobox_control',
+        disabled_class : 'moobox_disabled'
       }
     },
     
     initialize : function(options){
       this.setOptions(options);
       this.cache = {};
+      this.galleries = {};
       this.register_renderers();
       
       this.observe_anchors();
@@ -84,25 +102,18 @@
       window.addEvent('domready', this.create_fx.bind(this));
     },
     
-    host : function(){
-      return $(this.options.parent || document.body);
-    },
-    
-    content : function(){
-      return $(this.options.box.content_id) || new Element('div', {id : this.options.box.content_id}).inject(this.box());
-    },
-    
-    box : function(){
-      return $(this.options.box.id) || new Element('div', {id : this.options.box.id}).setStyle('display', 'none').inject(this.host());
-    },
-    
-    overlay : function(){
-      return $(this.options.overlay.id) || new Element('div', {id : this.options.overlay.id}).setStyle('display','none').inject(this.host()).addEvent('click', this.hide.bind(this));
-    },
-    
+    // dom shortcuts
+    host : function(){ return $(this.options.parent || document.body); },  
+    content : function(){ return $(this.options.box.content_id) || new Element('div', {id : this.options.box.content_id}).inject(this.box()); },
+    box : function(){ return $(this.options.box.id) || new Element('div', {id : this.options.box.id, class : this.options.box.classes}).setStyle('display', 'none').inject(this.host()); },  
+    overlay : function(){ return $(this.options.overlay.id) || new Element('div', {id : this.options.overlay.id}).setStyle('display','none').inject(this.host()).addEvent('click', this.hide.bind(this)); },
+    next : function(){ return $(this.options.controls.next_id) || new Element('a', {id : this.options.controls.next_id, class : this.options.controls.class}).set('html', this.options.controls.next_text).addEvent('click', this.go_next.bind(this)).inject(this.box()); },
+    prev : function(){ return $(this.options.controls.prev_id) || new Element('a', {id : this.options.controls.prev_id, class : this.options.controls.class}).set('html', this.options.controls.prev_text).addEvent('click', this.go_prev.bind(this)).inject(this.box()); },
+    close : function(){ return $(this.options.controls.close_id) || new Element('a', {id : this.options.controls.close_id, class : this.options.controls.class}).set('html', this.options.controls.close_text).addEvent('click', this.hide.bind(this)).inject(this.box()); },
     
     // register the default renderers. to override call register_renderer with the appropriate arguments
     register_renderers : function(){
+      this.renderer_classes = {};
       this.register_renderer('gdoc', Moobox.GDocRenderer);
       this.register_renderer('image', Moobox.ImageRenderer);
       this.register_renderer('ajax', Moobox.AjaxRenderer);
@@ -113,23 +124,25 @@
     
     // registers a renderer via an event. no renderers are stored in the Moobox object.
     register_renderer : function(key, renderer_klazz){
-      this.removeEvents('render_' + key);
-      this.addEvent("render_" + key, function(target){
-        this.set_loading();
-        if(this.cache[target])
-          this.cache[target].render();
-        else
-          (this.cache[target] = this[key + '_renderer'] = new renderer_klazz(target, this)).render();
-      }.bind(this));
+      this.renderer_classes[key] = renderer_klazz;
+    },
+    
+    construct_renderer : function(target, title){
+      if(this.cache[target]) return this.cache[target];
+      return (this.cache[target] = new (this.renderer_classes[this.parse_target(target)])(target, title, this));
     },
     
     // find all the anchors that match the provided rel regex. observe clicks on them and fire the renderer.
     observe_anchors : function(){
       this.links = $$('a').each(function(a){
-        if(a.rel && a.rel.test(this.options.rel_match)){
-          var renderer_key = this.parse_target(a.href);
+        if(a.rel && a.rel.test(/^(moo|light)box/)){
+          
+          if(a.rel.test(/box\[(\w+)\]$/))
+            this.galleries[RegExp.$1] = this.galleries[RegExp.$1] || new Moobox.Gallery(RegExp.$1, this);
+            
           a.addEvent('click', function(){
-            this.fireEvent('render_' + renderer_key, a.href)
+            this.set_loading();
+            this.construct_renderer(a.href, a.title).render();
             return false;
           }.bind(this))
         }
@@ -160,6 +173,8 @@
       if(!this.showing()){
         this.show();
         this.apply_content(this.loading_renderer());
+      } else {
+        this.clear_content();
       }
       this.box().addClass('loading');
     },
@@ -172,6 +187,7 @@
       this.fx.overlay.start(this.options.overlay.opacity);
       this.fx.box.start(1).chain(function(){
         (fn || $empty)();
+        if(this.options.controls.show_close) this.close().setStyle('display', '');
         this.fx.content.start(1);
       }.bind(this));
     },
@@ -179,9 +195,34 @@
     hide : function(){
       this.fx.content.start(0).chain(function(){
         this.clear_content();
-        this.fx.box.start(0).chain(function(){this.box().setStyle('display', 'none');}.bind(this));
+        this.fx.box.start(0).chain(function(){
+          this.box().removeClass(this.options.box.gallery_class);
+          this.box().setStyle('display', 'none');
+        }.bind(this));
         this.fx.overlay.start(0).chain(function(){this.overlay().setStyle('display', 'non');}.bind(this));
       }.bind(this))
+      this.fireEvent('moobox_hidden');
+    },
+    
+    go_next : function(){
+      if(this.current_content && this.current_content.group) this.current_content.group.next();
+    },
+    
+    go_prev : function(){
+      if(this.current_content && this.current_content.group) this.current_content.group.prev();
+    },
+    
+    disable_next : function(){
+      this.next().addClass(this.options.controls.disabled_class);
+    },
+    
+    disable_prev : function(){
+      this.prev().addClass(this.options.controls.disabled_class);
+    },
+    
+    enable_controls : function(){
+      this.next().removeClass(this.options.controls.disabled_class);
+      this.prev().removeClass(this.options.controls.disabled_class);
     },
     
     showing : function(){
@@ -198,11 +239,31 @@
       this.clear_content();
       this.current_content = renderer;
       this.content().adopt(renderer.element());
+      this.apply_gallery_controls();
+      this.fireEvent('moobox_content_applied');
+    },
+    
+    apply_gallery_controls : function(){
+      if(this.current_content && this.current_content.group){
+        this.next().setStyle('display', '');
+        this.prev().setStyle('display', '');
+      } else {
+        this.next().setStyle('display', 'none');
+        this.prev().setStyle('display', 'none');
+      }
     },
     
     resize_and_apply : function(renderer){
       var fn = function(){  
         var size = this.cumulative_size(renderer);
+        if(size.width > this.options.box.max_width || size.height > this.options.box.max_height) {
+          renderer.shrink();
+          size = this.cumulative_size(renderer);
+        }
+        if(size.width < this.options.box.min_width || size.height < this.options.box.min_height) {
+          renderer.expand();
+          size = this.cumulative_size(renderer);
+        }
         var pos = this.next_position(size); 
         this.fx.resize.start({
           width : size.width,
@@ -234,7 +295,7 @@
     cumulative_size : function(renderer){
       return {
         width : renderer.dimensions().totalWidth + this.content_padding().width,
-        height : renderer.dimensions().totalHeight + this.content_padding().height
+        height : renderer.dimensions().totalHeight + this.content_padding().height,
       };
     },
     
@@ -282,11 +343,64 @@
     Memoize : ['loading_content', 'padding', 'content', 'box', 'overlay', 'parent']
   });
   
+  Moobox.Gallery = new Class({
+    initialize : function(name, moobox){
+      this.name = name;
+      this.box = moobox;
+      this.current_index = null;
+      this.box.addEvent('moobox_hidden', function(){
+        this.current_index = null;
+      }.bind(this));
+      this.box.addEvent('moobox_content_applied', function(){
+        if(this.box.current_content.group === this){
+          this.current_index = this.renderers().indexOf(this.box.current_content);
+          if(this.current_index == this.renderers().length - 1) this.box.disable_next();
+          if(this.current_index == 0) this.box.disable_prev();
+          this.box.box().addClass(this.box.options.box.gallery_class);
+        }
+      }.bind(this))
+      this.renderers();
+    },
+    next : function(){
+      if(this.box.current_content.group === this) {
+        if(this.current_index < this.renderers().length - 1) {
+          this.box.enable_controls();
+          this.box.set_loading();
+          this.renderers()[++this.current_index].render();
+          if(this.current_index == this.renderers().length - 1) this.box.disable_next();
+        }
+      }
+    },
+    prev : function(){
+      if(this.box.current_content.group === this) {
+        if(this.current_index > 0) {
+          this.box.enable_controls();
+          this.box.set_loading();
+          this.renderers()[--this.current_index].render();
+          if(this.current_index == 0) this.box.disable_prev();
+        }
+      }
+    },
+    renderers : function(){
+      var rs = [];
+      $$('a').each(function(a){
+        if(a.rel && a.rel.test(RegExp("box\\[" + this.name + "\\]$"))) {
+          var r = this.box.construct_renderer(a.href, a.title);
+          r.group = this;
+          rs.push(r);
+        }
+      }, this);
+      return rs;
+    },
+    Memoize : ['renderers']
+  });
+  
   Moobox.Renderer = new Class({
     Implements : Events,
-    initialize : function(target, moobox){
+    initialize : function(target, title, moobox){
       this.box = moobox;
       this.target = target;
+      this.title = title;
       this.addEvent('ready', this.alert.bind(this));
     },
     render : $empty,
@@ -296,6 +410,29 @@
     element : function(){
       if(Array.from(this.elements).length == 0) return undefined; // so the memoizing won't take affect.
       return Array.from(this.elements).length > 1 ? new Element('div').adopt(this.elements) : Array.from(this.elements).pick();
+    },
+    shrink : function(){
+      var dim = this.dimensions();
+      this.unmemoize('dimensions');
+      var padding = this.box.content_padding();
+      this.element().setStyle('width', this.box.options.box.max_width - padding.width - dim.computedLeft - dim.computedRight);
+      if(dim.totalHeight > this.box.options.box.max_height)
+      {
+        this.element().setStyle('height', this.box.options.box.max_height - padding.height - dim.computedTop, dim.computedBottom);
+        this.element().setStyle('overflow-y', 'auto');
+        this.unmemoize('dimensions');
+      }
+    },
+    expand : function(){
+      var dim = this.dimensions();
+      this.unmemoize('dimensions');
+      var padding = this.box.content_padding();
+      this.element().setStyle('height', this.box.options.box.min_height - padding.height - dim.computedTop - dim.computedBottom);
+      if(dim.totalWidth < this.box.options.box.min_width)
+      {
+        this.element().setStyle('width', this.box.options.box.min_width - padding.width - dim.computedLeft, dim.computedRight);
+        this.unmemoize('dimensions');
+      }
     },
     dimensions : function(){
       if(!this.element()) return undefined;
@@ -363,8 +500,8 @@
   
   Moobox.GDocRenderer = new Class({
     Extends : Moobox.RemoteRenderer,
-    initialize : function(target, moobox){
-      this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, moobox);
+    initialize : function(target, title, moobox){
+      this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, title, moobox);
     }
   });
   

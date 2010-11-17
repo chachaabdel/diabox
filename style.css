@@ -10,14 +10,25 @@ a:hover {color:#111;}
 .radius_br {-moz-border-radius-bottomright:5px; -webkit-border-bottom-right-radius:5px; border-bottom-right-radius: 5px;}
 .radius_bl {-moz-border-radius-bottomleft:5px; -webkit-border-bottom-left-radius:5px; border-bottom-left-radius: 5px;}
 
-#moobox {z-index:1000;position:fixed;background-color:white;border:5px solid #ccc;}
-#moobox_content {position:relative;}
+#moobox {z-index:1000;position:fixed;background:black url(img/loading.gif) center center no-repeat;border:5px solid black;}
+#moobox_content {position:relative;background-color:white;}
 #moobox_overlay {position:fixed;width:100%;height:100%;top:0;left:0;z-index:999;background:transparent url(img/overlay.png) top left repeat;}
 #moobox_footer {background-color:#eaeaea;text-align:center;position:absolute;left:10px;right:10px;padding:0 10px;margin:0 -10px;top:0px;height:20px;line-height:20px;border-top:1px solid #ddd;}
 #moobox_footer h2 {font-size:14px;display:inline;}
 #moobox_footer a {text-decoration:none;text-transform:uppercase;}
 #moobox_test {padding:0;margin:0;}
-#moobox_footer a.moobox_disabled {color:#ccc;}
-#moobox_close {float:right;}
-#moobox_prev, #moobox_next {float:left;margin-right:5px;}
-#moobox.loading {background:white url(img/loading.gif) center center no-repeat}
+#moobox .moobox_control {position:absolute;bottom:5px;width:50px;height:38px;text-indent:-9999px;visibility:hidden;background:transparent url(img/controls.png) top left no-repeat;}
+#moobox:hover .moobox_control {visibility:visible;}
+#moobox #moobox_close {right:5px;background-position:-50px 0;}
+#moobox.moobox_gallery #moobox_close {left:50%;right:auto;margin-left:-25px;background-position:-50px 0;}
+#moobox #moobox_prev {left:50%;margin-left:-75px;}
+#moobox #moobox_next {left:50%;margin-left:25px;background-position:-99px 0;}
+#moobox #moobox_close:hover {background-position:-50px -38px;}
+#moobox #moobox_prev:hover {background-position:0 -38px;}
+#moobox #moobox_next:hover {background-position:-99px -38px;}
+#moobox #moobox_close:active {background-position:-50px -76px;}
+#moobox #moobox_prev:active {background-position:0px -76px;}
+#moobox #moobox_next:active {background-position:-99px -76px;}
+#moobox #moobox_close.moobox_disabled, #moobox #moobox_close.moobox_disabled:hover, #moobox #moobox_close.moobox_disabled:active {background-position:-50px -114px;}
+#moobox #moobox_prev.moobox_disabled, #moobox #moobox_prev.moobox_disabled:hover, #moobox #moobox_prev.moobox_disabled:active {background-position:0 -114px;}
+#moobox #moobox_next.moobox_disabled, #moobox #moobox_next.moobox_disabled:hover, #moobox #moobox_next.moobox_disabled:active {background-position:-99px -114px;}
