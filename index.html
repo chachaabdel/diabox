@@ -12,7 +12,8 @@
 		
 		<link rel="stylesheet" href="style.css" type="text/css" media="screen, projection" />	
 		<script type="text/javascript" src="mootools.js"></script>
-		<script type="text/javascript" src="mootools_more.js"></script>	
+		<script type="text/javascript" src="mootools_more.js"></script>
+		<script type="text/javascript" src="Class.Mutators.Memoize.js"></script>	
 	  <script type="text/javascript" src="moobox2.js"></script>
 	</head>
   <body id="page">
@@ -26,6 +27,7 @@
       <li><a href="#inline2" rel="moobox[test]">Hidden Inline Content</a></li>
       <li><a href="#inline3" rel="moobox" title="Hidden Content">Flowing Inline Content</a></li>
       <li><a href="#inline4" rel="moobox" title="Large Hidden Content">Large Hidden Content</a></li>
+			<li><input type="text" id="moobox_value" size="10" /><a href="#" onclick="moobox.reveal($(moobox_value).value);return false;">render</a></li>
     </ul>
   
     <div id="inline">
