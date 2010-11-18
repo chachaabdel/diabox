@@ -1,7 +1,7 @@
 /*
 ---
 
-script: moobox.js
+script: moolight.js
 
 description: Provides lightweight lightbox to render images, inline content, remote pages, pdfs, ajax content, etc.
 
@@ -14,7 +14,7 @@ requires:
 - core/1.2.4: *
 - class/mutators/memoize/0.3: Class.Mutators.Memoize
 
-provides: [Moobox]
+provides: [MooLight]
 
 ...
 */
@@ -25,12 +25,14 @@ provides: [Moobox]
     try{ console.error("MOOBOX: Please include the Memoize plugin: http://mootools.net/forge/p/mootols_memoize")} catch(e){}
   } else {
 
-    Moobox = new Class({
+    MooLight = new Class({
     
       Implements: [Options, Events, Chain],
       options : {
         parser : null,                          // pass in a function that takes a target (url, dom element, etc) and passes back a renderer key
-        parent : null,                          // the element that moobox and it's overlay are children of; null will use the body element
+        parent : null,                          // the element that moolight and it's overlay are children of; null will use the body element
+        rel_target : /^(moolight|moobox|lightbox)/, // the pattern to match when analyzing links on the site.
+        error_text : '<p style="text-align:center;padding:10px;">Sorry, there was an error retrieving the content.<br />Please try again later.</p>',
         iframe : {                              
           width : 850,                          // the content width of an iframe renderer
           height: 575                           // the content height of an iframe renderer
@@ -40,9 +42,9 @@ provides: [Moobox]
           maxHeight : 575                       // the max image height of an image renderer
         },                                      
         box : {                                 
-          id : 'moobox',                        // the id of the modal window
-          content_id : 'moobox_content',        // the id of the content div inside the modal window
-          loading_id : 'moobox_loading',        // the id of the loading div that get's injected while no other content is present
+          id : 'moolight',                        // the id of the modal window
+          content_id : 'moolight_content',        // the id of the content div inside the modal window
+          loading_id : 'moolight_loading',        // the id of the loading div that get's injected while no other content is present
           fade_duration : 400,                  // the fade in and fade out duration for the modal window
           resize_duration : 400,                // the duration when the box is resizing before applying the next content
           content_fade_duration : 200,          // the duration it takes for the content to appear after being added to the modal window
@@ -58,21 +60,21 @@ provides: [Moobox]
         },                                      
         gallery : {                             
           enabled : true,                       // allow galleries to be created and iterated through
-          box_class : 'moobox_gallery',         // the class that gets added to the modal window when a gallery is present
-          slideshow_class : 'moobox_slideshow', // the class that gets added to the modal window when a slideshow is running
+          box_class : 'moolight_gallery',         // the class that gets added to the modal window when a gallery is present
+          slideshow_class : 'moolight_slideshow', // the class that gets added to the modal window when a slideshow is running
           slideshow_duration : 5000,            // the amount of time each content in the gallery stays present
           autostart : false,                    // start the slideshow whenever a gallery is shown
           loop : false                          // allow iteration from first to last and last to first  
         },                                      
         title : {                               
-          id : 'moobox_title',                  // the id of the title element
+          id : 'moolight_title',                  // the id of the title element
           default_text : null,                  // a default title
           show : true,                          // show titles
           show_gallery_index : true,            // show the current page of the gallery (1 / 3), (3 / 5), etc
           parent : null                         // the parent element of the title (id or element)
         },                                      
         overlay : {                             
-          id : 'moobox_overlay',                // id of the overlay
+          id : 'moolight_overlay',                // id of the overlay
           fade_duration : 400,                  // amount of time for the overlay to fade in
           opacity : 0.7,                        // the end opacity of the overlay
           transition : Fx.Transitions.Sine.easeOut
@@ -82,10 +84,10 @@ provides: [Moobox]
           height : 500                          // the height of a pdf, tiff, or ppt
         },
         controls : {
-          next_id : 'moobox_next',              // id of the next button
-          prev_id : 'moobox_prev',              // id of the previous button
-          close_id : 'moobox_close',            // id of the close button
-          play_id : 'moobox_play',              // id of the play button
+          next_id : 'moolight_next',              // id of the next button
+          prev_id : 'moolight_prev',              // id of the previous button
+          close_id : 'moolight_close',            // id of the close button
+          play_id : 'moolight_play',              // id of the play button
           next_text : 'next',                   // text of the next button (html ok)
           prev_text : 'prev',                   // text of the prev button (html ok)
           close_text : 'close',                 // text of the close button (html ok)
@@ -93,8 +95,8 @@ provides: [Moobox]
           show_close : true,                    // display the close button
           enable_shortcuts : true,              // allow keyboard shortcuts, by default only ESC is implemented
           key_command : null,                   // function to call when a key command (not ESC) is fired. return false to stop propogation
-          classes : 'moobox_control',           // class that's added to all control elements (prev, next, close, play)
-          disabled_class : 'moobox_disabled',   // the class that's added to control elements when they should be disabled
+          classes : 'moolight_control',           // class that's added to all control elements (prev, next, close, play)
+          disabled_class : 'moolight_disabled',   // the class that's added to control elements when they should be disabled
           parent : null                         // the parent of the control elements, by default the modal window
         }
       },
@@ -130,12 +132,12 @@ provides: [Moobox]
       // register all the default renderers
       register_renderers : function(){
         this.renderer_classes = {};
-        this.register_renderer('gdoc', Moobox.GDocRenderer);
-        this.register_renderer('image', Moobox.ImageRenderer);
-        this.register_renderer('ajax', Moobox.AjaxRenderer);
-        this.register_renderer('remote', Moobox.RemoteRenderer);
-        this.register_renderer('inline', Moobox.InlineRenderer);
-        this.register_renderer('element', Moobox.ElementRenderer);
+        this.register_renderer('gdoc', MooLight.GDocRenderer);
+        this.register_renderer('image', MooLight.ImageRenderer);
+        this.register_renderer('ajax', MooLight.AjaxRenderer);
+        this.register_renderer('remote', MooLight.RemoteRenderer);
+        this.register_renderer('inline', MooLight.InlineRenderer);
+        this.register_renderer('element', MooLight.ElementRenderer);
       },
     
       // register a class as a renderer for a specific target key
@@ -152,10 +154,10 @@ provides: [Moobox]
       // observe clicks on all valid links and fire a render event based on the link's attributes.
       observe_anchors : function(){
         this.links = $$('a').each(function(a){
-          if(a.rel && a.rel.test(/^(moo|light)box/)){
+          if(a.rel && a.rel.test(this.opt.rel_target)){
           
-            if(this.opt.gallery.enabled && a.rel.test(/box\[(\w+)\]$/))
-              this.galleries[RegExp.$1] = this.galleries[RegExp.$1] || new Moobox.Gallery(RegExp.$1, this);
+            if(this.opt.gallery.enabled && a.rel.test(/\[(\w+)\]$/))
+              this.galleries[RegExp.$1] = this.galleries[RegExp.$1] || new MooLight.Gallery(RegExp.$1, this);
             
             a.addEvent('click', function(){
               this.set_loading();
@@ -202,7 +204,7 @@ provides: [Moobox]
     
       // the temporary renderer that's displayed when no others are present
       loading_renderer : function(){
-        return new Moobox.ElementRenderer(new Element('div', {id : this.opt.box.loading_id}), null, this);
+        return new MooLight.ElementRenderer(new Element('div', {id : this.opt.box.loading_id}), null, this);
       },
     
       // apply the loading renderer and add a loading class to the box
@@ -256,13 +258,12 @@ provides: [Moobox]
     
       // enable the next and previous buttons
       enable_controls : function(){
-        this.next().removeClass(this.opt.controls.disabled_class);
-        this.prev().removeClass(this.opt.controls.disabled_class);
+        $$(this.next(), this.prev()).removeClass(this.opt.controls.disabled_class);
       },
     
-      // reveal text or html directly to this moobox
+      // reveal text or html directly to this moolight
       reveal : function(text_or_html, title){
-        var r = new Moobox.ElementRenderer(new Element('div').set('html', text_or_html), title, this);
+        var r = new MooLight.ElementRenderer(new Element('div').set('html', text_or_html), title, this);
         r.render();
         return r;
       },
@@ -290,7 +291,7 @@ provides: [Moobox]
           }.bind(this));
           this.fx.overlay.start(0).chain(function(){this.overlay().setStyle('display', 'none');}.bind(this));
         }.bind(this))
-        this.fireEvent('moobox_hidden');
+        this.fireEvent('moolight_hidden');
       },
     
       // is the box visible right now?
@@ -310,7 +311,7 @@ provides: [Moobox]
         this.clear_content();
         this.current_content = renderer;
         this.content().adopt(renderer.element());
-        this.fireEvent('moobox_content_applied');
+        this.fireEvent('moolight_content_applied');
         this.apply_static_elements();
         renderer.after_render();
       },
@@ -323,13 +324,9 @@ provides: [Moobox]
           this.close().setStyle('display', 'none');
         
         if(this.opt.gallery.enabled && this.current_content.gallery){
-          this.next().setStyle('display', '');
-          this.prev().setStyle('display', '');
-          this.play().setStyle('display', '');
+          $$(this.next(), this.prev(), this.play()).setStyle('display', '');
         } else {
-          this.next().setStyle('display', 'none');
-          this.prev().setStyle('display', 'none');
-          this.play().setStyle('display', 'none');
+          $$(this.next(), this.prev(), this.play()).setStyle('display', 'none');
         }
         if(this.opt.title.show && (this.current_content.title || this.opt.title.default_text || this.opt.title.show_gallery_index)){
 
@@ -439,20 +436,23 @@ provides: [Moobox]
 
       Memoize : ['loading_content', 'padding', 'host', 'content', 'box', 'overlay', 'next', 'prev', 'close', 'title', 'play']
     });
-  
-    Moobox.Gallery = new Class({
-      initialize : function(name, moobox){
+    
+    
+    // The gallery handles the iteration over content, slideshows, and toggling button styles
+    MooLight.Gallery = new Class({
+      initialize : function(name, moolight){
         this.name = name;
-        this.box = moobox;
+        this.box = moolight;
         this.current_index = null;
         this.slideshow = null;
-        this.box.addEvent('moobox_hidden', function(){
+        this.box.addEvent('moolight_hidden', function(){
           this.current_index = null;
           this.stop_slideshow();
         }.bind(this));
-        this.box.addEvent('moobox_content_applied', function(){
+        this.box.addEvent('moolight_content_applied', function(){
           if(this.box.current_content.gallery === this){
             this.current_index = this.renderers().indexOf(this.box.current_content);
+            this.box.enable_controls();
             this.update_buttons();
             this.box.box().addClass(this.box.opt.gallery.box_class);
             if(this.box.opt.gallery.autostart)
@@ -461,9 +461,10 @@ provides: [Moobox]
         }.bind(this))
         this.renderers();
       },
+      
+      // jump to the next content. if loop is enabled allow jumping from n-1 to 0
       next : function(){
         if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index < this.renderers().length - 1)) {
-          this.box.enable_controls();
           this.box.set_loading();
           this.renderers()[(this.current_index < this.renderers().length - 1 ? ++this.current_index : (this.current_index = 0))].render();
           this.update_buttons();
@@ -471,39 +472,56 @@ provides: [Moobox]
             this.stop_slideshow();
         }
       },
+      
+      // jump to the prev content. if loop is enabled allow jumping from 0 ot n-1
       prev : function(){
         if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index > 0)) {
-          this.box.enable_controls();
           this.box.set_loading();
           this.renderers()[(this.current_index > 0 ? --this.current_index : (this.current_index = this.renderers().length - 1))].render();
           this.update_buttons();
         }
       },
+      
+      // is able to iterate forward
       can_next : function(){ return this.box.opt.gallery.loop || this.current_index < (this.renderers().length - 1);},
+      
+      // is able to iterate backward
       can_prev : function(){ return this.box.opt.gallery.loop || this.current_index > 0;},
+      
+      // update the button status (before here they were set to enabled)
       update_buttons : function(){
         if(!this.can_next()){this.box.disable_next();}
         if(!this.can_prev()){this.box.disable_prev();}
       },
+      
+      // start a slideshow
       start_slideshow : function(){
         if(this.playing()) return;
         this.box.box().addClass(this.box.opt.gallery.slideshow_class);
         this.slideshow = this.next.periodical(this.box.opt.gallery.slideshow_duration, this);
       },
+      
+      // stop the slideshow
       stop_slideshow : function(){
         clearTimeout(this.slideshow);
         this.slideshow = null;
         this.box.box().removeClass(this.box.opt.gallery.slideshow_class);
       },
+      
+      // turn the slideshow on / off
       toggle_slideshow : function(){
         if(this.playing())
           this.stop_slideshow();
         else
           this.start_slideshow();
       },
+      
+      // is there a slideshow running?
       playing : function(){
         return !!this.slideshow;
       },
+      
+      // the renderers in this gallery. cache the gallery in the renderer for easy comparison (renderer.gallery === this)
       renderers : function(){
         var rs = [];
         $$('a').each(function(a){
@@ -518,22 +536,42 @@ provides: [Moobox]
       Memoize : ['renderers']
     });
   
-    Moobox.Renderer = new Class({
+  
+    /**********************************
+      Renderer class. Wraps a target (link, element, element id, etc) and allows retrieval and displaying of that target.
+      To implement your own renderer just Extend : MooLight.Renderer then implement the render method (normally $empty).
+      The render method should be in the following format:
+      render : function(){
+        if(!this.retrieved()){
+          var elems = // some code to create an element or set of elements utilizing this.target
+          this.set_content(elems);
+        }
+      }
+      It's imperative that you use the retrieved() and set_content() methods. These handle firing events, alerting the moolight.
+      retrieved() will either return true and fire an event or it will return false.
+      set_content() applies the content you've created then fires the required events. 
+    /**********************************/
+    
+    MooLight.Renderer = new Class({
       Implements : Events,
-      initialize : function(target, title, moobox){
-        this.box = moobox;
+      initialize : function(target, title, moolight){
+        this.box = moolight;
         this.target = target;
         this.title = title;
         this.addEvent('ready', this.alert.bind(this));
       },
       render : $empty,
+      // alert the moolight that this render is ready to be shown
       alert : function(){
         if(this.element()) this.box.fireEvent('render_ready', this);
       },
+      // if multiple elements are passed then wrap them with a div, otherwise return the element
       element : function(){
         if(Array.from(this.elements).length == 0) return undefined; // so the memoizing won't take affect.
         return Array.from(this.elements).length > 1 ? new Element('div').adopt(this.elements) : Array.from(this.elements).pick();
       },
+      
+      // shrink the content to fit within the bounds of the moolight settings
       shrink : function(){
         var dim = this.dimensions();
         this.unmemoize('dimensions');
@@ -546,6 +584,8 @@ provides: [Moobox]
           this.unmemoize('dimensions');
         }
       },
+      
+      // expand the content to fit outside the minimum bounds set by the moolight settings.
       expand : function(){
         var dim = this.dimensions();
         this.unmemoize('dimensions');
@@ -557,10 +597,12 @@ provides: [Moobox]
           this.unmemoize('dimensions');
         }
       },
+      
+      // what are the dimensions of the produced element. insert them in a hidden test box, measure, then remove them.
       dimensions : function(){
         if(!this.element()) return undefined;
-        var test = $('moobox_test_box');
-        if(!test) (test = new Element('div', {id : 'moobox_test_box'}).setStyle('display', 'none')).inject(this.box.host());
+        var test = $('moolight_test_box');
+        if(!test) (test = new Element('div', {id : 'moolight_test_box'}).setStyle('display', 'none')).inject(this.box.host());
         test.grab(this.element());
         var dim = this.element().measure(function(){
           return this.getComputedSize();
@@ -568,85 +610,105 @@ provides: [Moobox]
         test.empty();
         return dim;
       },
+      
+      // after render callback. by default calls any scripts that may be present.
       after_render : function(){
         if(this.scripts){eval(this.scripts);}
+      },
+      
+      // has the content been retrieved. if so, fire a READY event
+      retrieved : function(){
+        if(!!this.element()){
+          this.fireEvent('ready');
+          return true;
+        } else {
+          return false;
+        }
+      },
+      
+      // set the content and fire a ready event.
+      set_content : function(elements){
+        this.elements = elements || new Element('p').set('html', this.box.opt.error_text);
+        this.fireEvent('ready');
       },
       
       Memoize : ['element', 'dimensions']
     });
   
-    Moobox.ImageRenderer = new Class({
-      Extends : Moobox.Renderer,
+    MooLight.ImageRenderer = new Class({
+      Extends : MooLight.Renderer,
       render : function(){
-        if(!this.elements){
+        if(!this.retrieved()){
           this.image = new Image();
-          this.image.onload = this.finish_render.bind(this)
+          this.image.onload = this.finish_render.bind(this);
+          this.image.onerror = this.finish_failed_render.bind(this);
           this.image.src = this.target;
-        } else {
-          this.fireEvent('ready');
         }
       },
       finish_render : function(){
-        this.elements = new Element('img', {src : this.target}).setStyles(
+        this.set_content(new Element('img', {src : this.target}).setStyles(
         { width : [this.box.opt.image.max_width, this.image.width].min(),
-          height : [this.box.opt.image.max_height, this.image.height].max()});
-        this.fireEvent('ready');
+          height : [this.box.opt.image.max_height, this.image.height].max()}));
+      },
+      finish_failed_render : function(){
+        this.set_content(null);
       }
     });
   
-    Moobox.AjaxRenderer = new Class({
-      Extends : Moobox.Renderer,
+    MooLight.AjaxRenderer = new Class({
+      Extends : MooLight.Renderer,
       render : function(){
-        if(!this.elements){
+        if(!this.retrieved()){
           new Request.HTML({url : this.target, evalScripts : false, onSuccess : function(tree, elems, html, js){
-            this.elements = elems;
-            this.scripts = js;
-            this.fireEvent('ready');
-          }.bind(this)}).get();
-        } else {
-          this.fireEvent('ready');
+            this.set_scripts(js);
+            this.set_content(elems);
+          }.bind(this), onFailure : function(){
+            this.set_content(null);
+          }}).get();
         }
       }
     });
   
-    Moobox.RemoteRenderer = new Class({
-      Extends : Moobox.Renderer,
+    MooLight.RemoteRenderer = new Class({
+      Extends : MooLight.Renderer,
       render : function(){
-        if(!this.elements){
-          this.elements = new Element('iframe', {
+        if(!this.retrieved()){
+          this.set_content(new Element('iframe', {
             src : this.target,
             id : 'iframe_' + (new Date().getTime()),
             width : this.box.opt.iframe.width,
             height : this.box.opt.iframe.height,
             frameborder : 0
-          }).setStyles({width : this.box.opt.iframe.width, height : this.box.opt.iframe.height});
+          }).setStyles({width : this.box.opt.iframe.width, height : this.box.opt.iframe.height}));
         }
-        this.fireEvent('ready');
       }
     });
   
-    Moobox.GDocRenderer = new Class({
-      Extends : Moobox.RemoteRenderer,
-      initialize : function(target, title, moobox){
-        this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, title, moobox);
+    MooLight.GDocRenderer = new Class({
+      Extends : MooLight.RemoteRenderer,
+      initialize : function(target, title, moolight){
+        this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, title, moolight);
       }
     });
   
   
-    Moobox.ElementRenderer = new Class({
-      Extends : Moobox.Renderer,
+    MooLight.ElementRenderer = new Class({
+      Extends : MooLight.Renderer,
       render : function(){
-        if(!this.elements) this.elements = this.target;
-        this.fireEvent('ready');
+        if(!this.retrieved()){
+          this.set_content(this.target);
+        }
       }
     });
   
-    Moobox.InlineRenderer = new Class({
-      Extends : Moobox.Renderer,
+    MooLight.InlineRenderer = new Class({
+      Extends : MooLight.Renderer,
       render : function(){
-        if(!this.elements) this.elements = $(this.target.substring(this.target.indexOf('#') + 1)).clone(true, false);
-        if(this.elements.getStyle('display') == 'none') this.elements.setStyle('display', '');
-        this.fireEvent('ready');
+        if(!this.retrieved()){
+          var e = $(this.target.substring(this.target.indexOf('#') + 1)).clone(true, false);
+          if(e.getStyle('display') == 'none') e.setStyle('display', '');
+          this.set_content(e);
+        }
       }
     });
   }
