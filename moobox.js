@@ -53,8 +53,8 @@ provides: [Moobox]
           loading_class : 'loading',            // class that's added to the modal window when data is loading.
           max_width : 900,                      // the maximum width the modal window can be
           max_height : 700,                     // the maximum height the modal window can be
-          min_width: 100,                       // the minimum width the modal window can be
-          min_height : 130                      // the minimum height the modal window can be
+          min_width: 50,                       // the minimum width the modal window can be
+          min_height : 80                      // the minimum height the modal window can be
         },                                      
         gallery : {                             
           enabled : true,                       // allow galleries to be created and iterated through
