@@ -20,13 +20,13 @@
     <ul>
       <li><a href="img/logo.png" rel="moobox[test]">Image</a></li>
       <li><a href="http://www.google.com" rel="moobox[test]" title="Remote Page">Remote Page</a></li>
+			<li><a href="http://www.youtube.com/watch?v=txqiwrbYGrs" rel="moobox[video]">Youtube Video</a></li>
+			<li><a href="http://www.vimeo.com/15952335" rel="moobox[video]">Vimeo Video</a></li>
 			<li><a href="http://www.samplepdf.com/sample.pdf" rel="moobox[docs]" title ="PDF Sample">PDF Sample</a></li>
 			<li><a href="http://www.chicopee.mec.edu/pages/Excel%20-%20PPoint%20workshop/PPoint%20samples/Company%20Meeting.ppt" rel="moobox[docs]" title ="PPT Sample">Powerpoint Sample</a></li>
 			<li><a href="http://www.fileformat.info/format/tiff/sample/3794038f08df403bb446a97f897c578d/CCITT_1.TIF" rel="moobox[docs]" title="TIFF Sample">TIFF Sample</a></li>
       <li><a href="#inline" rel="moolight[test]">Inline Content</a></li>
       <li><a href="#inline2" rel="lightbox[test]">Hidden Inline Content</a></li>
-      <li><a href="#inline3" rel="moobox" title="Hidden Content">Flowing Inline Content</a></li>
-      <li><a href="#inline4" rel="moobox" title="Large Hidden Content">Large Hidden Content</a></li>
 			<li><input type="text" id="moolight_value" size="10" /><a href="#" onclick="moolight.reveal($(moolight_value).value);return false;">render</a></li>
     </ul>
   
@@ -38,14 +38,6 @@
       <h2>This content is also on the page, but hidden.</h2>
     </div>
     
-    <div id="inline3" style="display:none;">
-      <h2>This content is also on the page, but hidden. It should have a title of "Hidden Content" and not be part of the group. This content is also on the page, but hidden. It should have a title of "Hidden Content" and not be part of the group.</h2>
-    </div>
-    
-    <div id="inline4" style="width:950px;height:30px;display:block;border:2px solid red;">
-      <h2>This content is too large so it'll be shrunk down if needed.</h2>
-    </div>
-  
     <script type="text/javascript" charset="utf-8">
       window.addEvent("domready", function(){
         window.moolight = new MooLight();

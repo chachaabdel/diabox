@@ -83,6 +83,14 @@ provides: [MooLight]
           width : 850,                          // the width of a pdf, tiff, or ppt
           height : 500                          // the height of a pdf, tiff, or ppt
         },
+        youtube : {
+          width: 650,
+          height: 350
+        },
+        vimeo : {
+          width : 650,
+          height: 350
+        },
         controls : {
           next_id : 'moolight_next',              // id of the next button
           prev_id : 'moolight_prev',              // id of the previous button
@@ -138,6 +146,8 @@ provides: [MooLight]
         this.register_renderer('remote', MooLight.RemoteRenderer);
         this.register_renderer('inline', MooLight.InlineRenderer);
         this.register_renderer('element', MooLight.ElementRenderer);
+        this.register_renderer('youtube', MooLight.YoutubeRenderer);
+        this.register_renderer('vimeo', MooLight.VimeoRenderer);
       },
     
       // register a class as a renderer for a specific target key
@@ -419,7 +429,11 @@ provides: [MooLight]
         if(typeOf(target) == 'element')
           return 'element';
         else if(typeOf(target) == 'string'){
-          if(target.test(/\.(ppt|PPT|tif|TIF|pdf|PDF)$/i)) {
+          if(target.test(/youtube\.com\/watch\?v\=(\w+)(&|)/)){
+            return 'youtube';
+          } else if(target.test(/vimeo\.com\/(\d+)/)) {
+            return 'vimeo';
+          } else if(target.test(/\.(ppt|PPT|tif|TIF|pdf|PDF)$/i)) {
             return 'gdoc';
           } else if(target.test(/\.(png|PNG|jpg|JPG|jpeg|JPEG|gif|GIF)$/i)){
             return 'image';
@@ -676,8 +690,8 @@ provides: [MooLight]
           this.set_content(new Element('iframe', {
             src : this.target,
             id : 'iframe_' + (new Date().getTime()),
-            width : this.box.opt.iframe.width,
-            height : this.box.opt.iframe.height,
+            width : this.width || this.box.opt.iframe.width,
+            height : this.height || this.box.opt.iframe.height,
             frameborder : 0
           }).setStyles({width : this.box.opt.iframe.width, height : this.box.opt.iframe.height}));
         }
@@ -688,6 +702,18 @@ provides: [MooLight]
       Extends : MooLight.RemoteRenderer,
       initialize : function(target, title, moolight){
         this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, title, moolight);
+        this.width = this.box.opt.gdoc.width;
+        this.height = this.box.opt.gdoc.height;
+      }
+    });
+    
+    MooLight.VimeoRenderer = new Class({
+      Extends : MooLight.RemoteRenderer,
+      initialize : function(target, title, moolight){
+        target.test(/vimeo\.com\/(\d+)/)
+        this.parent("http://player.vimeo.com/video/" + RegExp.$1, title, moolight);
+        this.width = this.box.opt.vimeo.width;
+        this.height = this.box.opt.vimeo.height;
       }
     });
   
@@ -711,6 +737,25 @@ provides: [MooLight]
         }
       }
     });
+    
+    MooLight.YoutubeRenderer = new Class({
+      Extends : MooLight.Renderer,
+      initialize : function(target, title, moolight){
+        target.test(/v=([0-9a-zA-Z\-\_]+)(&|)/)
+        this.parent(RegExp.$1, title, moolight);
+      },
+      render : function(){
+        if(!this.retrieved()){
+          this.set_content(new Element('div').set('html', '<object width="' + this.box.opt.youtube.width + '" height="' + this.box.opt.youtube.height + '">' + 
+                '<param name="movie" value="http://www.youtube.com/v/' + this.target + '?fs=1&amp;hl=en_US"></param>' + 
+                '<param name="wmode" value="transparent"></param>' +
+                '<param name="allowFullScreen" value="true"></param>' + 
+                '<param name="allowscriptaccess" value="always"></param>' + 
+                '<embed src="http://www.youtube.com/v/' + this.target + '?fs=1&amp;hl=en_US" wmode="transparent" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="' + this.box.opt.youtube.width + '" height="' + this.box.opt.youtube.height + '"></embed>' + 
+                '</object>'));
+        }
+      }
+    })
   }
   
 })(document.id || $);
