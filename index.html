@@ -1,10 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:svg="http://www.w3.org/2000/svg">
 	<head>
-		<title>MooLight Example</title>
-		<meta name="title" content="MooLight Example" />
+		<title>Diabox Example</title>
+		<meta name="title" content="Diabox Example" />
     <meta name="keywords" content="lightbox modal window mootools javascript" />
-    <meta name="description" content="MooLight is a lightbox built on the Mootools javascript framework allowings images, remote pages, local pages, and inline content." />
+    <meta name="description" content="Diabox is a lightbox built on the Mootools javascript framework allowings images, remote pages, local pages, inline content, pdf's and much more." />
     <meta name="author" content="Mike Nelson" />
     <meta name="copyright" content="Mike Nelson" />
     <meta name="robots" content="index,follow" />
@@ -14,34 +14,51 @@
 		<script type="text/javascript" src="mootools.js"></script>
 		<script type="text/javascript" src="mootools_more.js"></script>
 		<script type="text/javascript" src="Class.Mutators.Memoize.js"></script>	
-	  <script type="text/javascript" src="diabox.js"></script>
+		<script type="text/javascript" src="diabox.js"></script>
 	</head>
   <body id="page">
-    <ul>
-      <li><a href="img/logo.png" rel="diabox[test]">Image</a></li>
-      <li><a href="http://www.google.com" rel="diabox[test]" title="Remote Page">Remote Page</a></li>
-			<li><a href="http://www.youtube.com/watch?v=txqiwrbYGrs" rel="diabox[video]">Youtube Video</a></li>
-			<li><a href="http://www.vimeo.com/15952335" rel="diabox[video]">Vimeo Video</a></li>
-			<li><a href="http://www.samplepdf.com/sample.pdf" rel="diabox[docs]" title ="PDF Sample">PDF Sample</a></li>
-			<li><a href="http://www.chicopee.mec.edu/pages/Excel%20-%20PPoint%20workshop/PPoint%20samples/Company%20Meeting.ppt" rel="diabox[docs]" title ="PPT Sample">Powerpoint Sample</a></li>
-			<li><a href="http://www.fileformat.info/format/tiff/sample/3794038f08df403bb446a97f897c578d/CCITT_1.TIF" rel="diabox[docs]" title="TIFF Sample">TIFF Sample</a></li>
-      <li><a href="#inline" rel="diabox[test]">Inline Content</a></li>
-      <li><a href="#inline2" rel="lightbox[test]">Hidden Inline Content</a></li>
-			<li><input type="text" id="diabox_value" size="10" /><a href="#" onclick="diabox.reveal($(diabox_value).value);return false;">render</a></li>
-    </ul>
+	<div id="content">
+		<h1>Diabox Examples <em><a href="http://www.github.com/mnelson/diabox">(download)</a></em></h1>
+		<p>Diabox is another modal window lightbox thing built on the Mootools JS framework. It provides support for the following content types and is extremely customizable.</p>
+		<ul class="content_types">
+			<li>Images                 </li>
+			<li>Local HTML (via ajax)  </li>
+			<li>Remote Pages           </li>
+			<li>PDF's                  </li>
+			<li>Powerpoints            </li>
+			<li>TIFF's                 </li>
+			<li>Youtube Videos         </li>
+			<li>Vimeo Videos           </li>
+			<li>Elements               </li>
+			<li>Inline Content         </li>
+			<li>Raw Text               </li>
+		</ul>	
+		
+		<h3>Examples</h3>
+	    <ul class="examples">
+	      <li><a href="img/logo.png" rel="diabox[test]">Image</a></li>
+	      <li><a href="http://www.google.com" rel="diabox[test]" title="Remote Page">Remote Page</a></li>
+				<li><a href="http://www.youtube.com/watch?v=txqiwrbYGrs" rel="diabox[video]">Youtube Video</a></li>
+				<li><a href="http://www.vimeo.com/15952335" rel="diabox[video]">Vimeo Video</a></li>
+				<li><a href="http://www.samplepdf.com/sample.pdf" rel="diabox[docs]" title ="PDF Sample">PDF Sample</a></li>
+				<li><a href="http://www.chicopee.mec.edu/pages/Excel%20-%20PPoint%20workshop/PPoint%20samples/Company%20Meeting.ppt" rel="diabox[docs]" title ="PPT Sample">Powerpoint Sample</a></li>
+				<li><a href="http://www.fileformat.info/format/tiff/sample/3794038f08df403bb446a97f897c578d/CCITT_1.TIF" rel="diabox[docs]" title="TIFF Sample">TIFF Sample</a></li>
+	      <li><a href="#inline" rel="diabox[test]">Inline Content</a></li>
+	      <li><a href="#inline2" rel="lightbox[test]">Hidden Inline Content</a></li>
+	    </ul>
   
-    <div id="inline">
-      <h2>Here's an example of the inline content</h2>
-    </div>
+	    <div id="inline" class="inline_content">
+	      <p>Here's an example of the inline content</p>
+	    </div>
     
-    <div id="inline2" style="display:none;">
-      <h2>This content is also on the page, but hidden.</h2>
+	    <div id="inline2" class="inline_content" style="display:none;">
+	      <p>This content is also on the page, but hidden.</p>
+	    </div>
     </div>
-    
-    <script type="text/javascript" charset="utf-8">
-      window.addEvent("domready", function(){
-        window.diabox = new Diabox();
-      });
-    </script>
+	<script type="text/javascript" charset="utf-8">
+		window.addEvent("domready", function(){
+			window.diabox = new Diabox();
+ 		});
+	</script>
   </body>
 </html>

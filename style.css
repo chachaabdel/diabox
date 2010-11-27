@@ -1,4 +1,4 @@
-html, body {width:100%;padding:0;margin:0;font-family:Helvetica, Arial, sans-serif;font-size:14px;}
+html, body {width:100%;padding:0;margin:0;font-family:Helvetica, Arial, sans-serif;font-size:14px;background-color:#fafafa;}
 h1, h2, h3, h4, div {padding:0;margin:0;}
 a {color:#333;cursor:pointer;}
 a:hover {color:#111;}
@@ -47,3 +47,17 @@ a:hover {color:#111;}
 #diabox #diabox_next.diabox_disabled, #diabox #diabox_next.diabox_disabled:hover, #diabox #diabox_next.diabox_disabled:active {background-position:-99px -114px;}
 #diabox #diabox_title {position:absolute;left:5px;top:5px;color:#fafafa;}
 #diabox #diabox_title em {margin-left:5px;color:#555;font-size:.75em;line-height:1em;}
+
+
+
+#content {width:700px;margin:0 auto;background-color:white;border:1px solid #ccc;margin-top:50px;padding:20px;}
+.content_types li {width:45%;margin-right:5%;padding:2px 0;margin:0;float:left;}
+h3 {clear:left;padding-top:20px;}
+
+.examples {padding:0;margin:0;}
+.examples li {list-style:none;}
+.examples li a {padding:10px 20px;margin:10px;list-style:none;background-color:#f0f0f0;display:block;text-decoration:none;border:1px solid #ddd;}
+.examples li a:hover {background-color:#fafafa;}
+
+.inline_content p {margin:0;padding:20px;}
+h1 em {font-size:.75em;color:#999;}

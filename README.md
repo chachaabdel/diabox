@@ -16,6 +16,7 @@ Diabox is another modal window lightbox thing. It provides support for the follo
 * Inline Content
 * Raw Text
 
+For examples go [here](http://files.mikeonrails.com/diabox/index.html)
 
 Installation 
 ---
@@ -209,7 +210,7 @@ Once you've created your renderable class you must register it with the Diabox i
 
 	diabox.register_renderable('my_custom_key', Diabox.MyCustomRenderable);
 
-Call Your Renderable
+Calling Your Renderable
 ---
 The last step is to create a parser function that handles converting a target to your renderable key. The parser function is called prior to default evaluation. The parser is passed the target (which could be anything) and should return a renderable key. Here's the parser included in the diabox source:
 
