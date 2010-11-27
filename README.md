@@ -1,6 +1,6 @@
 Diabox
 ===
-![screenshot](http://files.mikeonrails.com/diabox/img/logo.png)
+![logo](http://files.mikeonrails.com/diabox/img/logo.png)
 
 Diabox is another modal window lightbox thing. It provides support for the following content types:
 
@@ -17,6 +17,15 @@ Diabox is another modal window lightbox thing. It provides support for the follo
 * Raw Text
 
 For examples go [here](http://www.mikeonrails.com/diabox)
+
+
+Screenshots
+---
+
+![Screenshot 1](http://files.mikeonrails.com/diabox/img/screenshot1.png)
+![Screenshot 2](http://files.mikeonrails.com/diabox/img/screenshot2.png)
+![Screenshot 3](http://files.mikeonrails.com/diabox/img/screenshot3.png)
+
 
 Installation 
 ---
