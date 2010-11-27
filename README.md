@@ -16,7 +16,7 @@ Diabox is another modal window lightbox thing. It provides support for the follo
 * Inline Content
 * Raw Text
 
-For examples go [here](http://files.mikeonrails.com/diabox/index.html)
+For examples go [here](http://www.mikeonrails.com/diabox)
 
 Installation 
 ---
