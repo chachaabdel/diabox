@@ -415,8 +415,8 @@ provides: [Diabox]
       // the cumulative size of the window based on specific content
       cumulative_size : function(renderable){
         return {
-          width : renderable.dimensions().totalWidth + this.content_padding().width,
-          height : renderable.dimensions().totalHeight + this.content_padding().height,
+          width : (renderable.dimensions().totalWidth + this.content_padding().width),
+          height : (renderable.dimensions().totalHeight + this.content_padding().height)
         };
       },
     
