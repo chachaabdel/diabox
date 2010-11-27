@@ -3,22 +3,7 @@ Diabox
 
 ![logo](http://files.mikeonrails.com/diabox/img/logo.png)
 
-Diabox is another modal window lightbox thing. It provides support for the following content types:
-
-* Images
-* Local HTML (via ajax)
-* Remote Pages
-* PDF's
-* Powerpoints
-* TIFF's
-* Youtube Videos
-* Vimeo Videos
-* Elements
-* Inline Content
-* Raw Text
-
-For examples and more info go [here](http://www.mikeonrails.com/diabox)
-
+Diabox is another modal window solution. It provides support for the Images, Local HTML, Remote Pages, PDF's, Powerpoints, TIFF's, Youtube Videos, Vimeo Videos, Elements, Inline Content, and Raw Text. It's extremely customizable and even allows custom extensions of the provided Renderable interface. Diabox provides you with: Diabox, Diabox.Gallery, and Diabox.Renderable.
 
 How to Use 
 ---
