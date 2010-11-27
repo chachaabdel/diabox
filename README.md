@@ -27,7 +27,7 @@ Screenshots
 ![Screenshot 3](http://files.mikeonrails.com/diabox/img/screenshot3.png)
 
 
-Installation 
+How to Use 
 ---
 Just include diabox.js on your page. Diabox is dependent on Element.Measure which is part of Mootools More. It's also dependent on the Memoize plugin so be sure to include that as well. Feel free to edit the source and include the Memoize source directly into diabox.js (I'm the author of that as well). 
 
