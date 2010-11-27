@@ -188,7 +188,7 @@ function tests_all_content_types(){
       }, timeout += diabox_delay * 3);
     })
   });
-  delay(next, timeout);
+  delay(next, timeout + diabox_delay * 3);
 }
 
 function show_results(){

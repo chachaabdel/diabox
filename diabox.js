@@ -1,3 +1,4 @@
+
 /*
 ---
 
@@ -27,24 +28,24 @@ provides: [Diabox]
 
     Diabox = new Class({
     
-      Implements: [Options, Events, Chain],
+      Implements: [Options, Events],
       options : {
-        parser : null,                            // pass in a function that takes a target (url, dom element, etc) and passes back a renderer key
+        parser : null,                            // pass in a function that takes a target (url, dom element, etc) and passes back a renderable key
         parent : null,                            // the element that diabox and it's overlay are children of; null will use the body element
-        rel_target : /^(dia|light)box/,        // the pattern to match when analyzing links on the site.
+        rel_target : /^(dia|light)box/,           // the pattern to match when analyzing links on the site.
         error_text : '<p style="text-align:center;padding:10px;">Sorry, there was an error retrieving the content.<br />Please try again later.</p>',
         iframe : {                              
-          width : 850,                            // the content width of an iframe renderer
-          height: 575                             // the content height of an iframe renderer
+          width : 850,                            // the content width of an iframe renderable
+          height: 575                             // the content height of an iframe renderable
         },                                      
         image : {                               
-          maxWidth : 850,                         // the max image width of an image renderer
-          maxHeight : 575                         // the max image height of an image renderer
+          maxWidth : 850,                         // the max image width of an image renderable
+          maxHeight : 575                         // the max image height of an image renderable
         },                                      
         box : {                                 
-          id : 'diabox',                        // the id of the modal window
-          content_id : 'diabox_content',        // the id of the content div inside the modal window
-          loading_id : 'diabox_loading',        // the id of the loading div that get's injected while no other content is present
+          id : 'diabox',                          // the id of the modal window
+          content_id : 'diabox_content',          // the id of the content div inside the modal window
+          loading_id : 'diabox_loading',          // the id of the loading div that get's injected while no other content is present
           fade_duration : 400,                    // the fade in and fade out duration for the modal window
           resize_duration : 400,                  // the duration when the box is resizing before applying the next content
           content_fade_duration : 200,            // the duration it takes for the content to appear after being added to the modal window
@@ -57,49 +58,49 @@ provides: [Diabox]
           max_height : 700,                       // the maximum height the modal window can be
           min_width: 50,                          // the minimum width the modal window can be
           min_height : 80,                        // the minimum height the modal window can be
-          draggable : false,
-          draggable_class : 'draggable',
-          apply_renderer_class : true,
-          apply_gallery_class : true
+          draggable : false,                      // is the box draggable
+          draggable_class : 'draggable',          // the class to add when the box is draggable
+          apply_renderable_class : true,          // when content is applied should it add the renderable key to the box (text, ajax, youtube, etc)
+          apply_gallery_class : true              // when a gallery is applied should the gallery name be added to the box
         },                                      
         gallery : {                             
           enabled : true,                         // allow galleries to be created and iterated through
-          box_class : 'diabox_gallery',         // the class that gets added to the modal window when a gallery is present
-          slideshow_class : 'diabox_slideshow', // the class that gets added to the modal window when a slideshow is running
+          box_class : 'diabox_gallery',           // the class that gets added to the modal window when a gallery is present
+          slideshow_class : 'diabox_slideshow',   // the class that gets added to the modal window when a slideshow is running
           slideshow_duration : 5000,              // the amount of time each content in the gallery stays present
           autostart : false,                      // start the slideshow whenever a gallery is shown
           loop : false                            // allow iteration from first to last and last to first  
         },                                      
         title : {                               
-          id : 'diabox_title',                  // the id of the title element
+          id : 'diabox_title',                    // the id of the title element
           default_text : null,                    // a default title
           show : true,                            // show titles
           show_gallery_index : true,              // show the current page of the gallery (1 / 3), (3 / 5), etc
           parent : null                           // the parent element of the title (id or element)
         },                                      
         overlay : {                             
-          id : 'diabox_overlay',                // id of the overlay
+          id : 'diabox_overlay',                  // id of the overlay
           fade_duration : 400,                    // amount of time for the overlay to fade in
           opacity : 0.7,                          // the end opacity of the overlay
-          transition : Fx.Transitions.Sine.easeOut
+          transition : Fx.Transitions.Sine.easeOut // the transition to use when the overlay is appearing
         },
         gdoc : {
           width : 850,                            // the width of a pdf, tiff, or ppt
           height : 500                            // the height of a pdf, tiff, or ppt
         },
         youtube : {
-          width: 650,
-          height: 350
+          width: 650,                             // the width of youtube videos
+          height: 350                             // the height of youtube videos
         },
         vimeo : {
-          width : 650,
-          height: 350
+          width : 650,                            // the width of vimeo videos
+          height: 350                             // the height of vimeo videos
         },
         controls : {
-          next_id : 'diabox_next',              // id of the next button
-          prev_id : 'diabox_prev',              // id of the previous button
-          close_id : 'diabox_close',            // id of the close button
-          play_id : 'diabox_play',              // id of the play button
+          next_id : 'diabox_next',                // id of the next button
+          prev_id : 'diabox_prev',                // id of the previous button
+          close_id : 'diabox_close',              // id of the close button
+          play_id : 'diabox_play',                // id of the play button
           next_text : 'next',                     // text of the next button (html ok)
           prev_text : 'prev',                     // text of the prev button (html ok)
           close_text : 'close',                   // text of the close button (html ok)
@@ -107,8 +108,8 @@ provides: [Diabox]
           show_close : true,                      // display the close button
           enable_shortcuts : true,                // allow keyboard shortcuts, by default only ESC is implemented
           key_command : null,                     // function to call when a key command (not ESC) is fired. return false to stop propogation
-          classes : 'diabox_control',           // class that's added to all control elements (prev, next, close, play)
-          disabled_class : 'diabox_disabled',   // the class that's added to control elements when they should be disabled
+          classes : 'diabox_control',             // class that's added to all control elements (prev, next, close, play)
+          disabled_class : 'diabox_disabled',     // the class that's added to control elements when they should be disabled
           parent : null                           // the parent of the control elements, by default the modal window
         }
       },
@@ -120,7 +121,7 @@ provides: [Diabox]
         this.cache = {};
         this.galleries = {};
         
-        this.register_renderers();
+        this.register_renderables();
         this.observe_anchors();
         this.observe_objects();
         this.observe_key_strokes();
@@ -148,30 +149,30 @@ provides: [Diabox]
       close : function(){ this.next();return new Element('a', {id : this.opt.controls.close_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.close_text).addEvent('click', this.hide.bind(this)).inject($(this.opt.controls.parent || this.box())); },
       title : function(){ return new Element('strong', {id : this.opt.title.id}).set('html', this.opt.title.default_text || '').inject($(this.opt.title.parent || this.box()))},
       
-      // register all the default renderers
-      register_renderers : function(){
-        this.renderer_classes = {};
-        this.register_renderer('text', Diabox.TextRenderer);
-        this.register_renderer('gdoc', Diabox.GDocRenderer);
-        this.register_renderer('image', Diabox.ImageRenderer);
-        this.register_renderer('ajax', Diabox.AjaxRenderer);
-        this.register_renderer('remote', Diabox.RemoteRenderer);
-        this.register_renderer('inline', Diabox.InlineRenderer);
-        this.register_renderer('element', Diabox.ElementRenderer);
-        this.register_renderer('youtube', Diabox.YoutubeRenderer);
-        this.register_renderer('vimeo', Diabox.VimeoRenderer);
+      // register all the default renderables
+      register_renderables : function(){
+        this.renderable_classes = {};
+        this.register_renderable('text', Diabox.TextRenderable);
+        this.register_renderable('gdoc', Diabox.GDocRenderable);
+        this.register_renderable('image', Diabox.ImageRenderable);
+        this.register_renderable('ajax', Diabox.AjaxRenderable);
+        this.register_renderable('remote', Diabox.RemoteRenderable);
+        this.register_renderable('inline', Diabox.InlineRenderable);
+        this.register_renderable('element', Diabox.ElementRenderable);
+        this.register_renderable('youtube', Diabox.YoutubeRenderable);
+        this.register_renderable('vimeo', Diabox.VimeoRenderable);
       },
     
-      // register a class as a renderer for a specific target key
-      register_renderer : function(key, renderer_klazz){
-        this.renderer_classes[key] = renderer_klazz;
+      // register a class as a renderable for a specific target key
+      register_renderable : function(key, renderable_klazz){
+        this.renderable_classes[key] = renderable_klazz;
       },
     
-      // construct a new renderer object unless one's already built and stored in the cache
-      construct_renderer : function(target, title){
+      // construct a new renderable object unless one's already built and stored in the cache
+      construct_renderable : function(target, title){
         if(this.cache[target]) return this.cache[target];
         var key = this.parse_target(target);
-        return this.cache[target] = new (this.renderer_classes[key])(target, title, this, key);
+        return this.cache[target] = new (this.renderable_classes[key])(target, title, this, key);
       },
     
       // observe clicks on all valid links and fire a render event based on the link's attributes.
@@ -184,17 +185,17 @@ provides: [Diabox]
             
             a.addEvent('click', function(){
               this.set_loading();
-              this.construct_renderer(a.href, a.title).render();
+              this.construct_renderable(a.href, a.title).render();
               return false;
             }.bind(this))
           }
         }, this);
       },
     
-      // resize and apply a renderer when it announces that it's ready
+      // resize and apply a renderable when it announces that it's ready
       observe_objects : function(){
-        this.addEvent('render_ready', function(renderer){
-          this.resize_and_apply(renderer);
+        this.addEvent('render_ready', function(renderable){
+          this.resize_and_apply(renderable);
         }.bind(this));
       },
       
@@ -225,16 +226,16 @@ provides: [Diabox]
         };
       },
     
-      // the temporary renderer that's displayed when no others are present
-      loading_renderer : function(){
-        return new Diabox.ElementRenderer(new Element('div', {id : this.opt.box.loading_id}), null, this);
+      // the temporary renderable that's displayed when no others are present
+      loading_renderable : function(){
+        return new Diabox.ElementRenderable(new Element('div', {id : this.opt.box.loading_id}), null, this);
       },
     
-      // apply the loading renderer and add a loading class to the box
+      // apply the loading renderable and add a loading class to the box
       set_loading : function(){
         if(!this.showing()){
           this.show();
-          this.apply_content(this.loading_renderer());
+          this.apply_content(this.loading_renderable());
         } else {
           this.clear_content();
         }
@@ -246,7 +247,7 @@ provides: [Diabox]
         this.title().empty();
         this.title().adopt([
           new Element('strong').set('html', text),
-          (this.current_content.gallery && this.opt.title.show_gallery_index ? new Element('em').set('html', "(" + (this.current_content.gallery.current_index + 1) + " / " + this.current_content.gallery.renderers().length + ")") : null)
+          (this.current_content.gallery && this.opt.title.show_gallery_index ? new Element('em').set('html', "(" + (this.current_content.gallery.current_index + 1) + " / " + this.current_content.gallery.renderables().length + ")") : null)
         ]);
       },
       
@@ -288,7 +289,7 @@ provides: [Diabox]
       reveal : function(target_or_text_or_html_or_id, title){
         this.set_loading();
         var key = this.parse_target(target_or_text_or_html_or_id);
-        var r = key == 'text' ? new Diabox.TextRenderer(target_or_text_or_html_or_id, title, this, 'text') : this.construct_renderer(target_or_text_or_html_or_id, title);
+        var r = key == 'text' ? new Diabox.TextRenderable(target_or_text_or_html_or_id, title, this, 'text') : this.construct_renderable(target_or_text_or_html_or_id, title);
         r.render();
         return r;
       },
@@ -336,16 +337,16 @@ provides: [Diabox]
         this.current_content = null;
       },
     
-      // apply a renderer to the window
-      apply_content : function(renderer){
+      // apply a renderable to the window
+      apply_content : function(renderable){
         this.clear_content();
-        this.current_content = renderer;
-        this.content().adopt(renderer.element());
-        if(this.opt.box.apply_renderer_class) this.box().addClass(this.current_content.class_name);
+        this.current_content = renderable;
+        this.content().adopt(renderable.element());
+        if(this.opt.box.apply_renderable_class) this.box().addClass(this.current_content.class_name);
         if(this.opt.box.apply_gallery_class && this.current_content.gallery) this.box().addClass(this.current_content.gallery.name);
         this.fireEvent('diabox_content_applied');
         this.apply_static_elements();
-        renderer.after_render();
+        renderable.after_render();
       },
     
       // apply all the static buttons and title to the window
@@ -372,16 +373,16 @@ provides: [Diabox]
       },
     
       // show the box if necessary, resize the box to fit the next content, then apply it.
-      resize_and_apply : function(renderer){
+      resize_and_apply : function(renderable){
         var fn = function(){  
-          var size = this.cumulative_size(renderer);
+          var size = this.cumulative_size(renderable);
           if(size.width > this.opt.box.max_width || size.height > this.opt.box.max_height) {
-            renderer.shrink();
-            size = this.cumulative_size(renderer);
+            renderable.shrink();
+            size = this.cumulative_size(renderable);
           }
           if(size.width < this.opt.box.min_width || size.height < this.opt.box.min_height) {
-            renderer.expand();
-            size = this.cumulative_size(renderer);
+            renderable.expand();
+            size = this.cumulative_size(renderable);
           }
           var pos = this.next_position(size); 
           this.fx.resize.start({
@@ -390,7 +391,7 @@ provides: [Diabox]
             left : pos.left,
             top : pos.top
           }).chain(function(){
-            this.apply_content(renderer);
+            this.apply_content(renderable);
           }.bind(this));
         }.bind(this);
         if(this.showing()){
@@ -413,10 +414,10 @@ provides: [Diabox]
       },
     
       // the cumulative size of the window based on specific content
-      cumulative_size : function(renderer){
+      cumulative_size : function(renderable){
         return {
-          width : renderer.dimensions().totalWidth + this.content_padding().width,
-          height : renderer.dimensions().totalHeight + this.content_padding().height,
+          width : renderable.dimensions().totalWidth + this.content_padding().width,
+          height : renderable.dimensions().totalHeight + this.content_padding().height,
         };
       },
     
@@ -442,10 +443,10 @@ provides: [Diabox]
         };
       },
     
-      // turn target into a renderer key
+      // turn target into a renderable key
       parse_target : function(target){
         var key = null;
-        if(this.parser) key = this.parser(target);
+        if(this.opt.parser) key = this.opt.parser(target);
         if(key){return key};
       
         if(typeOf(target) == 'element')
@@ -490,7 +491,7 @@ provides: [Diabox]
         }.bind(this));
         this.box.addEvent('diabox_content_applied', function(){
           if(this.box.current_content.gallery === this){
-            this.current_index = this.renderers().indexOf(this.box.current_content);
+            this.current_index = this.renderables().indexOf(this.box.current_content);
             this.box.enable_controls();
             this.update_buttons();
             this.box.box().addClass(this.box.opt.gallery.box_class);
@@ -498,16 +499,16 @@ provides: [Diabox]
               this.start_slideshow();
           }
         }.bind(this))
-        this.renderers();
+        this.renderables();
       },
       
       // jump to the next content. if loop is enabled allow jumping from n-1 to 0
       next : function(){
-        if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index < this.renderers().length - 1)) {
+        if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index < this.renderables().length - 1)) {
           this.box.set_loading();
-          this.renderers()[(this.current_index < this.renderers().length - 1 ? ++this.current_index : (this.current_index = 0))].render();
+          this.renderables()[(this.current_index < this.renderables().length - 1 ? ++this.current_index : (this.current_index = 0))].render();
           this.update_buttons();
-          if(!this.box.opt.gallery.loop && this.current_index == this.renderers().length - 1)
+          if(!this.box.opt.gallery.loop && this.current_index == this.renderables().length - 1)
             this.stop_slideshow();
         }
       },
@@ -516,13 +517,13 @@ provides: [Diabox]
       prev : function(){
         if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index > 0)) {
           this.box.set_loading();
-          this.renderers()[(this.current_index > 0 ? --this.current_index : (this.current_index = this.renderers().length - 1))].render();
+          this.renderables()[(this.current_index > 0 ? --this.current_index : (this.current_index = this.renderables().length - 1))].render();
           this.update_buttons();
         }
       },
       
       // is able to iterate forward
-      can_next : function(){ return this.box.opt.gallery.loop || this.current_index < (this.renderers().length - 1);},
+      can_next : function(){ return this.box.opt.gallery.loop || this.current_index < (this.renderables().length - 1);},
       
       // is able to iterate backward
       can_prev : function(){ return this.box.opt.gallery.loop || this.current_index > 0;},
@@ -560,25 +561,25 @@ provides: [Diabox]
         return !!this.slideshow;
       },
       
-      // the renderers in this gallery. cache the gallery in the renderer for easy comparison (renderer.gallery === this)
-      renderers : function(){
+      // the renderables in this gallery. cache the gallery in the renderable for easy comparison (renderable.gallery === this)
+      renderables : function(){
         var rs = [];
         $$('a').each(function(a){
           if(a.rel && a.rel.test(RegExp("\\[" + this.name + "\\]$"))) {
-            var r = this.box.construct_renderer(a.href, a.title);
+            var r = this.box.construct_renderable(a.href, a.title);
             r.gallery = this;
             rs.push(r);
           }
         }, this);
         return rs;
       },
-      Memoize : ['renderers']
+      Memoize : ['renderables']
     });
   
   
     /**********************************
-      Renderer class. Wraps a target (link, element, element id, etc) and allows retrieval and displaying of that target.
-      To implement your own renderer just Extend : Diabox.Renderer then implement the render method (normally $empty).
+      Renderable class. Wraps a target (link, element, element id, etc) and allows retrieval and displaying of that target.
+      To implement your own renderable just Extend : Diabox.Renderable then implement the render method (normally $empty).
       The render method should be in the following format:
       render : function(){
         if(!this.retrieved()){
@@ -591,7 +592,7 @@ provides: [Diabox]
       set_content() applies the content you've created then fires the required events. 
     /**********************************/
     
-    Diabox.Renderer = new Class({
+    Diabox.Renderable = new Class({
       Implements : Events,
       initialize : function(target, title, diabox, class_name){
         this.box = diabox;
@@ -675,16 +676,16 @@ provides: [Diabox]
     });
   
   
-    Diabox.TextRenderer = new Class({
-      Extends : Diabox.Renderer,
+    Diabox.TextRenderable = new Class({
+      Extends : Diabox.Renderable,
       render : function(){
         if(!this.retrieved())
           this.set_content(new Element('div').set('html', this.target));
       }
     });
     
-    Diabox.ImageRenderer = new Class({
-      Extends : Diabox.Renderer,
+    Diabox.ImageRenderable = new Class({
+      Extends : Diabox.Renderable,
       render : function(){
         if(!this.retrieved()){
           this.image = new Image();
@@ -703,8 +704,8 @@ provides: [Diabox]
       }
     });
   
-    Diabox.AjaxRenderer = new Class({
-      Extends : Diabox.Renderer,
+    Diabox.AjaxRenderable = new Class({
+      Extends : Diabox.Renderable,
       render : function(){
         if(!this.retrieved()){
           new Request.HTML({url : this.target, evalScripts : false, onSuccess : function(tree, elems, html, js){
@@ -717,8 +718,8 @@ provides: [Diabox]
       }
     });
   
-    Diabox.RemoteRenderer = new Class({
-      Extends : Diabox.Renderer,
+    Diabox.RemoteRenderable = new Class({
+      Extends : Diabox.Renderable,
       render : function(){
         if(!this.retrieved()){
           this.set_content(new Element('iframe', {
@@ -732,8 +733,8 @@ provides: [Diabox]
       }
     });
   
-    Diabox.GDocRenderer = new Class({
-      Extends : Diabox.RemoteRenderer,
+    Diabox.GDocRenderable = new Class({
+      Extends : Diabox.RemoteRenderable,
       initialize : function(target, title, diabox, class_name){
         this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, title, diabox, class_name);
         this.width = this.box.opt.gdoc.width;
@@ -741,8 +742,8 @@ provides: [Diabox]
       }
     });
     
-    Diabox.VimeoRenderer = new Class({
-      Extends : Diabox.RemoteRenderer,
+    Diabox.VimeoRenderable = new Class({
+      Extends : Diabox.RemoteRenderable,
       initialize : function(target, title, diabox, class_name){
         target.test(/vimeo\.com\/(\d+)/)
         this.parent("http://player.vimeo.com/video/" + RegExp.$1, title, diabox, class_name);
@@ -752,8 +753,8 @@ provides: [Diabox]
     });
   
   
-    Diabox.ElementRenderer = new Class({
-      Extends : Diabox.Renderer,
+    Diabox.ElementRenderable = new Class({
+      Extends : Diabox.Renderable,
       render : function(){
         if(!this.retrieved()){
           this.set_content(this.target);
@@ -761,8 +762,8 @@ provides: [Diabox]
       }
     });
   
-    Diabox.InlineRenderer = new Class({
-      Extends : Diabox.Renderer,
+    Diabox.InlineRenderable = new Class({
+      Extends : Diabox.Renderable,
       render : function(){
         if(!this.retrieved()){
           var e = $(this.target.substring(this.target.indexOf('#') + 1)).clone(true, false);
@@ -772,8 +773,8 @@ provides: [Diabox]
       }
     });
     
-    Diabox.YoutubeRenderer = new Class({
-      Extends : Diabox.Renderer,
+    Diabox.YoutubeRenderable = new Class({
+      Extends : Diabox.Renderable,
       initialize : function(target, title, diabox, class_name){
         target.test(/v=([0-9a-zA-Z\-\_]+)(&|)/)
         this.parent(RegExp.$1, title, diabox, class_name);
