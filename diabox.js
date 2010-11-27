@@ -695,8 +695,7 @@ provides: [Diabox]
       },
       finish_render : function(){
         var element = new Element('img', {src : this.target});
-        if(!Browser.ie)
-          element.setStyles('styles', { width : [this.box.opt.image.max_width, this.image.width].min(),
+        element.setStyles('styles', { width : [this.box.opt.image.max_width, this.image.width].min(),
                                         height : [this.box.opt.image.max_height, this.image.height].max()});
         this.set_content(element);
       },
