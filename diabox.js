@@ -301,7 +301,7 @@ provides: [Diabox]
         this.content().fade('hide');
         this.fx.overlay.start(this.opt.overlay.opacity);
         this.fx.box.start(1).chain(function(){
-          (fn || $empty)();
+          (fn || Function.from(null))();
           this.fx.content.start(1);
         }.bind(this));
       },
@@ -578,7 +578,7 @@ provides: [Diabox]
   
     /**********************************
       Renderable class. Wraps a target (link, element, element id, etc) and allows retrieval and displaying of that target.
-      To implement your own renderable just Extend : Diabox.Renderable then implement the render method (normally $empty).
+      To implement your own renderable just Extend : Diabox.Renderable then implement the render method (normally Function.from(null)).
       The render method should be in the following format:
       render : function(){
         if(!this.retrieved()){
@@ -600,11 +600,11 @@ provides: [Diabox]
         this.class_name = class_name;
         this.addEvent('ready', this.alert.bind(this));
       },
-      render : $empty,
+      render : Function.from(null),
       // after render callback. by default calls any scripts that may be present.
       after_render : function(){ if(this.scripts){eval(this.scripts);}},
       // after remove callback. called when the content is removed from 
-      after_remove : $empty,
+      after_remove : Function.from(null),
       // alert the diabox that this render is ready to be shown
       alert : function(){
         if(this.element()) this.box.fireEvent('render_ready', this);
