@@ -27,6 +27,7 @@ Screenshots
 Box Creation
 ---
 Diabox does not create a global object because it's intended to be very customizable. So it's up to you to create the Diabox object. Once created however, all links are analyzed, all events are attached, and all required DOM structures are created. Initializing the Diabox is as easy as:
+
 	<script type="text/javascript">
 		window.addEvent('domready', function(){ window.diabox = new Diabox({gallery : {enabled : true}}); });
 	</script>
