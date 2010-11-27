@@ -9,36 +9,41 @@ a:hover {color:#111;}
 .radius_tl {-moz-border-radius-topleft:5px; -webkit-border-top-left-radius:5px; border-top-left-radius: 5px;}
 .radius_br {-moz-border-radius-bottomright:5px; -webkit-border-bottom-right-radius:5px; border-bottom-right-radius: 5px;}
 .radius_bl {-moz-border-radius-bottomleft:5px; -webkit-border-bottom-left-radius:5px; border-bottom-left-radius: 5px;}
+#results li strong {margin-right:10px;}
+#results li.failed em{color:red;}
+#results li.passed em{color:green;}
 
-#moolight {z-index:1000;position:fixed;background-color:black;border:5px solid black;padding-top:30px;}
-#moolight.loading {background:black url(img/loading_small.gif) center center no-repeat;}
-#moolight_content {position:relative;background-color:white;}
-#moolight_overlay {position:fixed;width:100%;height:100%;top:0;left:0;z-index:999;background:transparent url(img/overlay.png) top left repeat;}
-#moolight_footer {background-color:#eaeaea;text-align:center;position:absolute;left:10px;right:10px;padding:0 10px;margin:0 -10px;top:0px;height:20px;line-height:20px;border-top:1px solid #ddd;}
-#moolight_footer h2 {font-size:14px;display:inline;}
-#moolight_footer a {text-decoration:none;text-transform:uppercase;}
-#moolight_test {padding:0;margin:0;}
-#moolight .moolight_control {position:absolute;bottom:5px;width:50px;height:38px;text-indent:-9999px;visibility:hidden;background:transparent url(img/controls.png) top left no-repeat;}
-#moolight:hover .moolight_control {visibility:visible;}
-#moolight #moolight_close {right:5px;background-position:-50px 0;}
-#moolight #moolight_play {display:none;right:5px;background:transparent url(img/slideshow.png) top left no-repeat;width:52px;}
-#moolight #moolight_play:hover {background-position:0 -38px;}
-#moolight #moolight_play:active {background-position:0 -76px;}
-#moolight.moolight_gallery #moolight_play {display:block;}
-#moolight.moolight_slideshow #moolight_play {background-position:-52px 0;}
-#moolight.moolight_slideshow #moolight_play:hover {background-position:-52px -38px;}
-#moolight.moolight_slideshow #moolight_play:active {background-position:-52px -76px;}
-#moolight.moolight_gallery #moolight_close {left:50%;right:auto;margin-left:-25px;background-position:-50px 0;}
-#moolight #moolight_prev {left:50%;margin-left:-75px;}
-#moolight #moolight_next {left:50%;margin-left:25px;background-position:-99px 0;}
-#moolight #moolight_close:hover {background-position:-50px -38px;}
-#moolight #moolight_prev:hover {background-position:0 -38px;}
-#moolight #moolight_next:hover {background-position:-99px -38px;}
-#moolight #moolight_close:active {background-position:-50px -76px;}
-#moolight #moolight_prev:active {background-position:0px -76px;}
-#moolight #moolight_next:active {background-position:-99px -76px;}
-#moolight #moolight_close.moolight_disabled, #moolight #moolight_close.moolight_disabled:hover, #moolight #moolight_close.moolight_disabled:active {background-position:-50px -114px;}
-#moolight #moolight_prev.moolight_disabled, #moolight #moolight_prev.moolight_disabled:hover, #moolight #moolight_prev.moolight_disabled:active {background-position:0 -114px;}
-#moolight #moolight_next.moolight_disabled, #moolight #moolight_next.moolight_disabled:hover, #moolight #moolight_next.moolight_disabled:active {background-position:-99px -114px;}
-#moolight #moolight_title {position:absolute;left:5px;top:5px;color:#fafafa;}
-#moolight #moolight_title em {margin-left:5px;color:#555;font-size:.75em;line-height:1em;}
+
+#diabox {z-index:1000;position:fixed;background-color:black;border:5px solid black;padding-top:30px;}
+#diabox.loading {background:black url(img/loading_small.gif) center center no-repeat;}
+#diabox.draggable {cursor:move;}
+#diabox_content {position:relative;background-color:white;cursor:default;}
+#diabox_overlay {position:fixed;width:100%;height:100%;top:0;left:0;z-index:999;background:transparent url(img/overlay.png) top left repeat;}
+#diabox_footer {background-color:#eaeaea;text-align:center;position:absolute;left:10px;right:10px;padding:0 10px;margin:0 -10px;top:0px;height:20px;line-height:20px;border-top:1px solid #ddd;}
+#diabox_footer h2 {font-size:14px;display:inline;}
+#diabox_footer a {text-decoration:none;text-transform:uppercase;}
+#diabox_test {padding:0;margin:0;}
+#diabox .diabox_control {position:absolute;bottom:5px;width:50px;height:38px;text-indent:-9999px;visibility:hidden;background:transparent url(img/controls.png) top left no-repeat;}
+#diabox:hover .diabox_control {visibility:visible;}
+#diabox #diabox_close {right:5px;background-position:-50px 0;}
+#diabox #diabox_play {display:none;right:5px;background:transparent url(img/slideshow.png) top left no-repeat;width:52px;}
+#diabox #diabox_play:hover {background-position:0 -38px;}
+#diabox #diabox_play:active {background-position:0 -76px;}
+#diabox.diabox_gallery #diabox_play {display:block;}
+#diabox.diabox_slideshow #diabox_play {background-position:-52px 0;}
+#diabox.diabox_slideshow #diabox_play:hover {background-position:-52px -38px;}
+#diabox.diabox_slideshow #diabox_play:active {background-position:-52px -76px;}
+#diabox.diabox_gallery #diabox_close {left:50%;right:auto;margin-left:-25px;background-position:-50px 0;}
+#diabox #diabox_prev {left:50%;margin-left:-75px;}
+#diabox #diabox_next {left:50%;margin-left:25px;background-position:-99px 0;}
+#diabox #diabox_close:hover {background-position:-50px -38px;}
+#diabox #diabox_prev:hover {background-position:0 -38px;}
+#diabox #diabox_next:hover {background-position:-99px -38px;}
+#diabox #diabox_close:active {background-position:-50px -76px;}
+#diabox #diabox_prev:active {background-position:0px -76px;}
+#diabox #diabox_next:active {background-position:-99px -76px;}
+#diabox #diabox_close.diabox_disabled, #diabox #diabox_close.diabox_disabled:hover, #diabox #diabox_close.diabox_disabled:active {background-position:-50px -114px;}
+#diabox #diabox_prev.diabox_disabled, #diabox #diabox_prev.diabox_disabled:hover, #diabox #diabox_prev.diabox_disabled:active {background-position:0 -114px;}
+#diabox #diabox_next.diabox_disabled, #diabox #diabox_next.diabox_disabled:hover, #diabox #diabox_next.diabox_disabled:active {background-position:-99px -114px;}
+#diabox #diabox_title {position:absolute;left:5px;top:5px;color:#fafafa;}
+#diabox #diabox_title em {margin-left:5px;color:#555;font-size:.75em;line-height:1em;}
