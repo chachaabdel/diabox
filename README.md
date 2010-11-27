@@ -1,9 +1,8 @@
 Diabox
 ===
+
 ![logo](http://files.mikeonrails.com/diabox/img/logo.png)
 
-Description
----
 Diabox is another modal window lightbox thing. It provides support for the following content types:
 
 * Images
@@ -21,14 +20,6 @@ Diabox is another modal window lightbox thing. It provides support for the follo
 For examples and more info go [here](http://www.mikeonrails.com/diabox)
 
 
-Screenshots
----
-
-![Screenshot 1](http://files.mikeonrails.com/diabox/img/screenshot1.png)
-![Screenshot 2](http://files.mikeonrails.com/diabox/img/screenshot2.png)
-![Screenshot 3](http://files.mikeonrails.com/diabox/img/screenshot3.png)
-
-
 How to Use 
 ---
 Just include diabox.js on your page. Diabox is dependent on Element.Measure which is part of Mootools More. It's also dependent on the Memoize plugin so be sure to include that as well. Feel free to edit the source and include the Memoize source directly into diabox.js (I'm the author of that as well). 
@@ -39,8 +30,14 @@ Just include diabox.js on your page. Diabox is dependent on Element.Measure whic
 	<script type="text/javascript" src="/javascripts/diabox.js"></script>
 
 
-Usage
-===
+
+Screenshots
+---
+
+![Screenshot 1](http://files.mikeonrails.com/diabox/img/screenshot1.png)
+![Screenshot 2](http://files.mikeonrails.com/diabox/img/screenshot2.png)
+![Screenshot 3](http://files.mikeonrails.com/diabox/img/screenshot3.png)
+
 
 Box Creation
 ---
@@ -88,7 +85,7 @@ Dynamic content can be displayed using the *reveal* method. It can handle any co
 	</script>
 
 Options
-===
+---
 Diabox gives you a multitude of options. Rather than explaining each and every one, here's a copy of the source:
 
 	options : {
@@ -176,10 +173,7 @@ Diabox gives you a multitude of options. Rather than explaining each and every o
 		}
 	}
 
-Renderable
-===
-
-Creating Your Renderable
+Creating Your Own Renderable
 ---
 The renderable interface wraps any content applied to the box. It also allows you to create and register your own renderable objects, essentially giving you the ability to render any type of content not currently supported. If you create your own renderable you'll need to do a few things for the Diabox to see it. First, you'll have to implement the Diabox.Renderable class.
 
