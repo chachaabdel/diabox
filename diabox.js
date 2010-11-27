@@ -694,7 +694,9 @@ provides: [Diabox]
         }
       },
       finish_render : function(){
-        this.set_content(new Element('img', {src : this.target}).setStyle('width', [this.box.opt.image.max_width, this.image.width].min()).setStyle('height', [this.box.opt.image.max_height, this.image.height].max()));
+        this.set_content(new Element('img', { src : this.target, 
+                                              width : [this.box.opt.image.max_width, this.image.width].min(),
+                                              height : [this.box.opt.image.max_height, this.image.height].max()}));
       },
       finish_failed_render : function(){
         this.set_content(null);
