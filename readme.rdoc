@@ -203,7 +203,7 @@ The last step is to create a parser function that handles converting a target to
 
  	parse_target : function(target){
    var key = null;
-   if(this.parser) key = this.parser(target);
+   if(this.options.parser) key = this.options.parser(target);
    if(key){return key};
  
    if(typeOf(target) == 'element')
