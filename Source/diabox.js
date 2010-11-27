@@ -3,7 +3,7 @@
 
 script: diabox.js
 
-description: Provides lightweight lightbox to render images, inline content, remote pages, pdfs, ajax content, youtube videos, vimeo videos, etc.
+description: Provides a lightweight lightbox to render images, inline content, remote pages, pdfs, ajax content, youtube videos, vimeo videos, etc.
 
 license: MIT-style license
 
@@ -11,10 +11,11 @@ authors:
 - Mike Nelson ( http://www.mikeonrails.com | http://www.twitter.com/mikeonrails )
 
 requires:
-- core/1.2.4: *
+- core/1.3: *
+- more/1.3: Element.Measure, Drag
 - class/mutators/memoize/0.3: Class.Mutators.Memoize
 
-provides: [Diabox]
+provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
 
 ...
 */
