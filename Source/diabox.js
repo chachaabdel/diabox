@@ -142,7 +142,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         }
         return box;
       },  
-      overlay : function(){ return new Element('div', {id : this.opt.overlay.id}).setStyle('display','none').inject(this.host()).addEvent('click', this.hide.bind(this)); },
+      overlay : function(){ return $(this.opt.overlay.id) || new Element('div', {id : this.opt.overlay.id}).setStyle('display','none').inject(this.host()).addEvent('click', this.hide.bind(this)); },
       next : function(){ this.prev(); return new Element('a', {id : this.opt.controls.next_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.next_text).addEvent('click', this.go_next.bind(this)).inject($(this.opt.controls.parent || this.box())); },
       play : function(){ return new Element('a', {id : this.opt.controls.play_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.play_text).addEvent('click', this.toggle_slideshow.bind(this)).inject($(this.opt.controls.parent || this.box())); },
       prev : function(){ this.play(); return new Element('a', {id : this.opt.controls.prev_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.prev_text).addEvent('click', this.go_prev.bind(this)).inject($(this.opt.controls.parent || this.box())); },
@@ -165,14 +165,19 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     
       // register a class as a renderable for a specific target key
       register_renderable : function(key, renderable_klazz){
+        if(this.renderable_classes[key]){
+          if(this.cache[key]) this.cache[key] = {};
+          console.log('key reset');
+        }
         this.renderable_classes[key] = renderable_klazz;
       },
     
       // construct a new renderable object unless one's already built and stored in the cache
       construct_renderable : function(target, title){
-        if(this.cache[target]) return this.cache[target];
         var key = this.parse_target(target);
-        return this.cache[target] = new (this.renderable_classes[key])(target, title, this, key);
+        if(this.cache[key] && this.cache[key][target]) return this.cache[key][target];
+        if(!this.cache[key]) this.cache[key] = {};
+        return this.cache[key][target] = new (this.renderable_classes[key])(target, title, this, key);
       },
     
       // observe clicks on all valid links and fire a render event based on the link's attributes.
@@ -289,7 +294,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       reveal : function(target_or_text_or_html_or_id, title){
         this.set_loading();
         var key = this.parse_target(target_or_text_or_html_or_id);
-        var r = key == 'text' ? new Diabox.TextRenderable(target_or_text_or_html_or_id, title, this, 'text') : this.construct_renderable(target_or_text_or_html_or_id, title);
+        var r = key == 'text' ? new (this.renderable_classes[key])(target_or_text_or_html_or_id, title, this, 'text') : this.construct_renderable(target_or_text_or_html_or_id, title);
         r.render();
         return r;
       },
@@ -460,10 +465,10 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
             return 'gdoc';
           } else if(target.test(/\.(png|PNG|jpg|JPG|jpeg|JPEG|gif|GIF)$/i)){
             return 'image';
-          } else if(target.test(/\:\/\/[^#]+#([a-zA-Z]?[a-zA-Z0-9\-\_\:\.]*)/i)){ 
+          } else if(target.test(RegExp('(^|(' + window.location.href.escapeRegExp() + '))#([a-zA-Z]?[a-zA-Z0-9\\-\\_\\:\\.]*)', 'i'))){ 
               return 'inline';
           } else if(target.test(/\:\/\//i)) {
-            if(!target.test(RegExp('^(' + window.location.protocol + '\\/\\/' + window.location.hostname + '/)', 'i')))
+            if(!target.test(RegExp('^(' + window.location.protocol.escapeRegExp() + '\\/\\/' + window.location.hostname.escapeRegExp() + '/)', 'i')))
               return 'remote';
             else 
               return 'ajax';
@@ -485,23 +490,29 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         this.box = diabox;
         this.current_index = null;
         this.slideshow = null;
-        this.box.addEvent('diabox_hidden', function(){
-          this.current_index = null;
-          this.stop_slideshow();
-        }.bind(this));
-        this.box.addEvent('diabox_content_applied', function(){
-          if(this.box.current_content.gallery === this){
-            this.current_index = this.renderables().indexOf(this.box.current_content);
-            this.box.enable_controls();
-            this.update_buttons();
-            this.box.box().addClass(this.box.opt.gallery.box_class);
-            if(this.box.opt.gallery.autostart)
-              this.start_slideshow();
-          }
-        }.bind(this))
-        this.renderables();
       },
       
+      reset : function(){
+        this.box.removeEvents();
+        this.unmemoize('renderables');
+        this.box.addEvent('diabox_hidden', this.hide.bind(this));
+        this.box.addEvent('diabox_content_applied', this.apply.bind(this));
+        this.renderables();
+      },
+      apply : function(){
+        if(this.box.current_content.gallery === this){
+          this.current_index = this.renderables().indexOf(this.box.current_content);
+          this.box.enable_controls();
+          this.update_buttons();
+          this.box.box().addClass(this.box.opt.gallery.box_class);
+          if(this.box.opt.gallery.autostart)
+            this.start_slideshow();
+        }
+      },
+      hide : function(){
+        this.current_index = null;
+        this.stop_slideshow();
+      },
       // jump to the next content. if loop is enabled allow jumping from n-1 to 0
       next : function(){
         if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index < this.renderables().length - 1)) {
@@ -791,7 +802,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
                 '</object>'));
         }
       }
-    })
+    });
   }
   
 })(document.id || $);
