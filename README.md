@@ -7,21 +7,11 @@ Diabox is another modal window solution. It provides support for the Images, Loc
 
 How to Use 
 ---
-Just include diabox.js on your page. Diabox is dependent on Element.Measure and Array.Extras which are part of Mootools More. It's also dependent on the Memoize plugin so be sure to include that as well. Feel free to edit the source and include the Memoize source directly into diabox.js (I'm the author of that as well). 
+Just include diabox.js on your page. Diabox is dependent on Element.Measure and Array.Extras (and Drag if you turn it on) which are part of Mootools More.
 
 	<script type="text/javascript" src="/javascripts/mootools.js"></script>
 	<script type="text/javascript" src="/javascripts/mootools_more.js"></script>
-	<script type="text/javascript" src="/javascripts/Class.Mutators.Memoize.js"></script>
 	<script type="text/javascript" src="/javascripts/diabox.js"></script>
-
-
-
-Screenshots
----
-
-![Screenshot 1](http://files.mikeonrails.com/diabox/img/screenshot1.png)
-![Screenshot 2](http://files.mikeonrails.com/diabox/img/screenshot2.png)
-![Screenshot 3](http://files.mikeonrails.com/diabox/img/screenshot3.png)
 
 
 Box Creation
@@ -243,3 +233,11 @@ The last step is to create a parser function that handles converting a target to
 		}
 		return null;
 	}
+	
+	
+Screenshots
+---
+
+![Screenshot 1](http://files.mikeonrails.com/diabox/img/screenshot1.png)
+![Screenshot 2](http://files.mikeonrails.com/diabox/img/screenshot2.png)
+![Screenshot 3](http://files.mikeonrails.com/diabox/img/screenshot3.png)
