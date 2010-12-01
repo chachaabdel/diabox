@@ -56,7 +56,7 @@ The titles on links are passed to the renderable and displayed when the content 
 
 Custom Dimensions
 ---
-Custom dimensions can be passed in the *rel*. They are defined with a similar syntax to galleries except you provide the width and height. The syntax is rel="diabox[widthxheight]". The width and the height are optional meaning you can override the width and leave the height blank if you'd like.
+Custom dimensions can be passed in the *rel*. They are defined with a similar syntax to galleries except you provide the width and height. The syntax is rel="diabox[widthxheight]". The width and the height are optional meaning you can override the width and leave the height blank if you'd like. Currently dimensions do not determine best fit or anything like that so make sure you're careful when using this on images or proportional content.
 
 	<a href="/images/a.png" rel="diabox[200x150]"><img src="/images/a.png" /></a>
 	<a href="/images/b.png" rel="diabox[examples][200x150]"><img src="/images/b.png" /></a>

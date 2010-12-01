@@ -98,7 +98,8 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         id : 'diabox_overlay',                  // id of the overlay
         fade_duration : 400,                    // amount of time for the overlay to fade in
         opacity : 0.7,                          // the end opacity of the overlay
-        transition : Fx.Transitions.Sine.easeOut // the transition to use when the overlay is appearing
+        transition : Fx.Transitions.Sine.easeOut, // the transition to use when the overlay is appearing
+        click_to_close : true
       },
       gdoc : {
         width : 850,                            // the width of a pdf, tiff, or ppt
@@ -163,7 +164,11 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       }
       return box;
     },  
-    overlay : function(){ return $(this.opt.overlay.id) || new Element('div', {id : this.opt.overlay.id}).setStyle('display','none').inject(this.host()).addEvent('click', this.hide.bind(this)); },
+    overlay : function(){ 
+      var ol = $(this.opt.overlay.id) || new Element('div', {id : this.opt.overlay.id}).setStyle('display','none').inject(this.host());
+      if(this.opt.overlay.click_to_close) ol.addEvent('click', this.hide.bind(this)); 
+      return ol;
+    },
     next : function(){ this.prev(); return new Element('a', {id : this.opt.controls.next_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.next_text).addEvent('click', this.go_next.bind(this)).inject($(this.opt.controls.parent || this.box())); },
     play : function(){ return new Element('a', {id : this.opt.controls.play_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.play_text).addEvent('click', this.toggle_slideshow.bind(this)).inject($(this.opt.controls.parent || this.box())); },
     prev : function(){ this.play(); return new Element('a', {id : this.opt.controls.prev_id}).addClass(this.opt.controls.classes).set('html', this.opt.controls.prev_text).addEvent('click', this.go_prev.bind(this)).inject($(this.opt.controls.parent || this.box())); },
@@ -196,21 +201,29 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       Array.from(galleries_to_change).each(function(g){ g.restart();});
     },
   
-    // construct a new renderable object unless one's already built and stored in the cache
-    construct_renderable : function(target, title, width, height){
+    cached_renderable : function(target){
       var key = this.parse_target(target);
-      if(this.cache[key] && this.cache[key][target]) return this.cache[key][target];
+      if(this.cache[key] && this.cache[key][target]) return [true, this.cache[key][target]];
       if(!this.cache[key]) this.cache[key] = {};
-      return this.cache[key][target] = new (this.renderable_classes[key])(target, title, this, key, width, height);
+      return [false, key];
+    },
+    
+    // construct a new renderable object unless one's already built and stored in the cache
+    construct_renderable : function(target, title, width, height, key){
+      var r = key ? [false, key] : this.cached_renderable(target);
+      if(r[0]) return r[1];
+      return this.cache[r[1]][target] = new (this.renderable_classes[r[1]])({target : target, title : title, box : this, class_name : r[1], width : width, height : height});
     },
     construct_renderable_from_link : function(a){
+      var r = this.cached_renderable(a.href);
+      if(r[0]) return r[1];
       var w = null;
       var h = null;
       if(a.rel.test(/\[(\d+)?x(\d+)?\]/)){
         w = RegExp.$1;
         h = RegExp.$2;
       }
-      return this.construct_renderable(a.href, a.title, w, h);
+      return this.construct_renderable(a.href, a.title, w, h, r[1]);
     },
     construct_gallery : function(name){
       this.galleries[name] = this.galleries[name] || new Diabox.Gallery(name, this);
@@ -269,7 +282,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
   
     // the temporary renderable that's displayed when no others are present
     loading_renderable : function(){
-      return new Diabox.ElementRenderable(new Element('div', {id : this.opt.box.loading_id}), null, this);
+      return new Diabox.ElementRenderable({target : new Element('div', {id : this.opt.box.loading_id}), title : null, box : this});
     },
   
     // apply the loading renderable and add a loading class to the box
@@ -330,7 +343,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     reveal : function(target_or_text_or_html_or_id, title, width, height){
       this.set_loading();
       var key = this.parse_target(target_or_text_or_html_or_id);
-      var r = key == 'text' ? new (this.renderable_classes[key])(target_or_text_or_html_or_id, title, this, 'text', width, height) : this.construct_renderable(target_or_text_or_html_or_id, title, width, height);
+      var r = key == 'text' ? new (this.renderable_classes[key])({target : target_or_text_or_html_or_id, title : title, box : this, class_name : 'text', width : width, height : height}) : this.construct_renderable(target_or_text_or_html_or_id, title, width, height);
       r.render();
       return r;
     },
@@ -645,13 +658,14 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
   
   Diabox.Renderable = new Class({
     Implements : Events,
-    initialize : function(target, title, diabox, class_name, width, height){
-      this.box = diabox;
-      this.target = target;
-      this.title = title;
-      this.class_name = class_name;
-      if(width) this.override_width = parseInt(width)
-      if(height) this.override_height = parseInt(height)
+    initialize : function(options){
+      this.options = options || {};
+      this.box = this.options.box;
+      this.target = this.options.target;
+      this.title = this.options.title;
+      this.class_name = this.options.class_name;
+      if(this.options.width) this.override_width = parseInt(this.options.width);
+      if(this.options.height) this.override_height = parseInt(this.options.height);
       this.addEvent('ready', this.alert.bind(this));
     },
     render : Function.from(null),
@@ -792,8 +806,9 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
 
   Diabox.GDocRenderable = new Class({
     Extends : Diabox.RemoteRenderable,
-    initialize : function(target, title, diabox, class_name, width, height){
-      this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, title, diabox, class_name, width, height);
+    initialize : function(options){
+      options.target = "http://docs.google.com/viewer?embedded=true&url=" + options.target;
+      this.parent(options);
       this.width = this.box.opt.gdoc.width;
       this.height = this.box.opt.gdoc.height;
     }
@@ -801,9 +816,10 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
   
   Diabox.VimeoRenderable = new Class({
     Extends : Diabox.RemoteRenderable,
-    initialize : function(target, title, diabox, class_name, width, height){
-      target.test(/vimeo\.com\/(\d+)/)
-      this.parent("http://player.vimeo.com/video/" + RegExp.$1, title, diabox, class_name, width, height);
+    initialize : function(options){
+      options.target.test(/vimeo\.com\/(\d+)/)
+      options.target = "http://player.vimeo.com/video/" + RegExp.$1
+      this.parent(options);
       this.width = this.box.opt.vimeo.width;
       this.height = this.box.opt.vimeo.height;
     }
@@ -832,9 +848,10 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
   
   Diabox.YoutubeRenderable = new Class({
     Extends : Diabox.Renderable,
-    initialize : function(target, title, diabox, class_name, width, height){
-      target.test(/v=([0-9a-zA-Z\-\_]+)(&|)/)
-      this.parent(RegExp.$1, title, diabox, class_name, width, height);
+    initialize : function(options){
+      options.target.test(/v=([0-9a-zA-Z\-\_]+)(&|)/)
+      options.target = RegExp.$1
+      this.parent(options);
     },
     render : function(){
       if(!this.retrieved()){
@@ -853,7 +870,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     Extends : Diabox.Renderable,
     render : function(){
       if(!this.retrieved()){
-        this.set_content(new Element('div').grab(new Swiff(this.target, {
+        this.set_content(new Element('div').grab(this.swiff = new Swiff(this.target, {
           id : ("swiff_" + new Date().getTime()),
           width : this.override_width || this.box.opt.swf.width,
           height : this.override_height || this.box.opt.swf.height,
@@ -863,7 +880,11 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
           }
         })));
       }
-    }
+    },
+    /*remote : function(){
+      if(!this.swiff) return undefined;
+      return Swiff.remote.apply(this.swiff, [this.swiff].concat(arguments))
+    }*/
   });
   
 })(document.id || $);

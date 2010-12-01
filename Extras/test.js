@@ -27,7 +27,7 @@ function show_and_click(id){
 
 function initialize(){
   try{
-    window.diabox = new Diabox({box : {draggable : true}, 
+    window.diabox = new Diabox({box : {draggable : true},
                                     gallery : {slideshow_duration : 2000}});
     window.diabox_delay = (diabox.options.box.fade_duration + diabox.options.box.content_fade_duration)*2;
     result(true, 'Diabox Integrated Properly');
@@ -90,7 +90,7 @@ function modal_hides_on_overlay_click(){
 function width_and_height_alterations(){
   show_and_click('image_test');
   delay(function(){
-    result(diabox.current_content.overrideWidth && diabox.current_content.overrideHeight, '[widthxheight] syntax evaluates properly without galleries');
+    result(!!diabox.current_content.override_width && !!diabox.current_content.override_height, '[widthxheight] syntax evaluates properly without galleries');
     next();
   });
 }
@@ -98,7 +98,7 @@ function width_and_height_alterations(){
 function width_and_height_alterations_with_galleries(){
   show_and_click('image_test2');
   delay(function(){
-    result(diabox.current_content.overrideWidth && diabox.current_content.overrideHeight, '[widthxheight] syntax evaluates properly with galleries');
+    result(!!diabox.current_content.override_width && !!diabox.current_content.override_height, '[widthxheight] syntax evaluates properly with galleries');
     next();
   });
 }
@@ -106,7 +106,7 @@ function width_and_height_alterations_with_galleries(){
 function width_alterations(){
   show_and_click('image_test3');
   delay(function(){
-    result(diabox.current_content.overrideWidth && !diabox.current_content.overrideHeight, '[widthx] syntax evaluates properly');
+    result(!!diabox.current_content.override_width && !diabox.current_content.override_height, '[widthx] syntax evaluates properly');
     next();
   });
 }
@@ -114,7 +114,7 @@ function width_alterations(){
 function height_alterations(){
   show_and_click('image_test4');
   delay(function(){
-    result(!diabox.current_content.overrideWidth && diabox.current_content.overrideHeight, '[xheight] syntax evaluates properly');
+    result(!diabox.current_content.override_width && !!diabox.current_content.override_height, '[xheight] syntax evaluates properly');
     next();
   });
 }
