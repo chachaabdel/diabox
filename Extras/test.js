@@ -226,7 +226,7 @@ function tests_all_content_types(){
 }
 
 function show_results(){
-  diabox.reveal('<p style="text-align:center;padding:20px;font-size:1.5em;color:#444;margin:0;">Thanks for testing the Diabox plugin. The results were as follows:<br /><br /><strong>' + successes + ' sucesses</strong><br />' + failures + ' failures</p>', 'Test Results');
+  diabox.reveal('<p style="text-align:center;padding:20px;font-size:1.5em;color:#444;margin:0;">Thanks for testing the Diabox plugin. The results were as follows:<br /><br /><strong>' + successes + ' successes</strong><br />' + failures + ' failures</p>', 'Test Results');
 }
 
 
