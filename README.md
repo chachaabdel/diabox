@@ -7,7 +7,7 @@ Diabox is another modal window solution. It provides support for the Images, Loc
 
 How to Use 
 ---
-Just include diabox.js on your page. Diabox is dependent on Element.Measure which is part of Mootools More. It's also dependent on the Memoize plugin so be sure to include that as well. Feel free to edit the source and include the Memoize source directly into diabox.js (I'm the author of that as well). 
+Just include diabox.js on your page. Diabox is dependent on Element.Measure and Array.Extras which are part of Mootools More. It's also dependent on the Memoize plugin so be sure to include that as well. Feel free to edit the source and include the Memoize source directly into diabox.js (I'm the author of that as well). 
 
 	<script type="text/javascript" src="/javascripts/mootools.js"></script>
 	<script type="text/javascript" src="/javascripts/mootools_more.js"></script>
@@ -40,7 +40,7 @@ If you want links on your page to be noticed by Diabox just set their *rel* attr
 
 Galleries
 ---
-If you want to display galleries it's as easy as adding a [gallery_name] to the *rel*. The galleries are ordered based on dom traversal. Galleries work for all content types, as long as it's wrapped by the Renderable interface.
+If you want to display galleries it's as easy as adding a [gallery_name] to the *rel*. The galleries are ordered based on dom traversal. Galleries work for all content types, as long as it's wrapped by the Renderable interface. The gallery names *cannot* start with a number.
 
 	<a href="/images/a.png" rel="diabox[examples]"><img src="/images/a.png" /></a>
 	<a href="/images/b.png" rel="diabox[examples]"><img src="/images/b.png" /></a>
@@ -53,6 +53,15 @@ Titles
 The titles on links are passed to the renderable and displayed when the content is shown. Titles can be turned off if you'd prefer but it's very useful to show them as captions.
 
 	<a href="/images/a.png" rel="diabox[examples]" title="Some Awesome [A]"><img src="/images/a.png" /></a>
+
+Custom Dimensions
+---
+Custom dimensions can be passed in the *rel*. They are defined with a similar syntax to galleries except you provide the width and height. The syntax is rel="diabox[widthxheight]". The width and the height are optional meaning you can override the width and leave the height blank if you'd like.
+
+	<a href="/images/a.png" rel="diabox[200x150]"><img src="/images/a.png" /></a>
+	<a href="/images/b.png" rel="diabox[examples][200x150]"><img src="/images/b.png" /></a>
+	<a href="/images/c.png" rel="diabox[examples][200x]"><img src="/images/c.png" /></a>       // only mods the width
+	<a href="/images/d.png" rel="diabox[examples][x150]"><img src="/images/d.png" /></a>       // only mods the height
 
 Inline Content
 ---

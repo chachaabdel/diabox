@@ -6,7 +6,8 @@ window.addEvent("domready", function(){
 function suite(){
   window.successes = window.failures = 0;
   window.suite_methods = ['initialize', 'creates_dom', 'finds_links', 'displays', 'adds_loading_class', 'displays_image', 
-    'hides_gallery_controls', 'modal_hides_on_overlay_click', 'gallery_initializes', 'gallery_plays', 'gallery_stops',
+    'hides_gallery_controls', 'modal_hides_on_overlay_click', 'width_and_height_alterations', 'width_and_height_alterations_with_galleries',
+    'width_alterations', 'height_alterations', 'gallery_initializes', 'gallery_plays', 'gallery_stops',
     'close_button_works', 'detects_resize', 'dragging_works', 'adds_class_names', 'adds_gallery_names', 'tests_all_content_types', 'show_results'].reverse();
 }
 
@@ -82,6 +83,38 @@ function modal_hides_on_overlay_click(){
   delay(function(){
     result(diabox.box().getStyle('display') == 'none', 'Diabox hides when overlay is clicked.');
     result(diabox.overlay().getStyle('display') == 'none', "Diabox overlay hides when overlay is clicked.");
+    next();
+  });
+}
+
+function width_and_height_alterations(){
+  show_and_click('image_test');
+  delay(function(){
+    result(diabox.current_content.overrideWidth && diabox.current_content.overrideHeight, '[widthxheight] syntax evaluates properly without galleries');
+    next();
+  });
+}
+
+function width_and_height_alterations_with_galleries(){
+  show_and_click('image_test2');
+  delay(function(){
+    result(diabox.current_content.overrideWidth && diabox.current_content.overrideHeight, '[widthxheight] syntax evaluates properly with galleries');
+    next();
+  });
+}
+
+function width_alterations(){
+  show_and_click('image_test3');
+  delay(function(){
+    result(diabox.current_content.overrideWidth && !diabox.current_content.overrideHeight, '[widthx] syntax evaluates properly');
+    next();
+  });
+}
+
+function height_alterations(){
+  show_and_click('image_test4');
+  delay(function(){
+    result(!diabox.current_content.overrideWidth && diabox.current_content.overrideHeight, '[xheight] syntax evaluates properly');
     next();
   });
 }
@@ -177,6 +210,7 @@ function tests_all_content_types(){
   ['http://www.vimeo.com/15952335', 'vimeo'],
   ['http://www.samplepdf.com/sample.pdf', 'http://www.chicopee.mec.edu/pages/Excel%20-%20PPoint%20workshop/PPoint%20samples/Company%20Meeting.ppt',
   'http://www.fileformat.info/format/tiff/sample/3794038f08df403bb446a97f897c578d/CCITT_1.TIF', 'gdoc'],
+  ['http://files.mikeonrails.com/diabox/img/ClearExternalNoVol.swf', 'swf'],
   ["Some inline text", 'text']].each(function(test){
     var looking_for = test.pop();
     test.each(function(target){
