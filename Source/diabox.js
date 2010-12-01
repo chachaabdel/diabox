@@ -96,6 +96,11 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
           width : 650,                            // the width of vimeo videos
           height: 350                             // the height of vimeo videos
         },
+        swf : {
+          width : 500,
+          height : 300,
+          bg_color : '#000000'
+        },
         controls : {
           next_id : 'diabox_next',                // id of the next button
           prev_id : 'diabox_prev',                // id of the previous button
@@ -161,6 +166,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         this.register_renderable('element', Diabox.ElementRenderable);
         this.register_renderable('youtube', Diabox.YoutubeRenderable);
         this.register_renderable('vimeo', Diabox.VimeoRenderable);
+        this.register_renderable('swf', Diabox.SwfRenderable);
       },
     
       // register a class as a renderable for a specific target key
@@ -173,11 +179,11 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       },
     
       // construct a new renderable object unless one's already built and stored in the cache
-      construct_renderable : function(target, title){
+      construct_renderable : function(target, title, width, height){
         var key = this.parse_target(target);
         if(this.cache[key] && this.cache[key][target]) return this.cache[key][target];
         if(!this.cache[key]) this.cache[key] = {};
-        return this.cache[key][target] = new (this.renderable_classes[key])(target, title, this, key);
+        return this.cache[key][target] = new (this.renderable_classes[key])(target, title, this, key, width, height);
       },
     
       // observe clicks on all valid links and fire a render event based on the link's attributes.
@@ -185,12 +191,19 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         this.links = $$('a').each(function(a){
           if(a.rel && a.rel.test(this.opt.rel_target)){
           
-            if(this.opt.gallery.enabled && a.rel.test(/\[(\w+)\]$/))
+            if(this.opt.gallery.enabled && a.rel.test(/\[(\w+)\]/))
               this.galleries[RegExp.$1] = this.galleries[RegExp.$1] || new Diabox.Gallery(RegExp.$1, this);
             
+            var w = null;
+            var h = null;
+            if(a.rel.test(/\[(\d+)?x(\d+)?\]/)){
+              w = RegExp.$1;
+              h = RegExp.$2;
+            }
+            console.log(w, h);
             a.addEvent('click', function(){
               this.set_loading();
-              this.construct_renderable(a.href, a.title).render();
+              this.construct_renderable(a.href, a.title, w, h).render();
               return false;
             }.bind(this))
           }
@@ -461,6 +474,8 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
             return 'youtube';
           } else if(target.test(/vimeo\.com\/(\d+)/i)) {
             return 'vimeo';
+          } else if(target.test(/\.swf/i)){
+            return 'swf';
           } else if(target.test(/\.(ppt|PPT|tif|TIF|pdf|PDF)$/i)) {
             return 'gdoc';
           } else if(target.test(/\.(png|PNG|jpg|JPG|jpeg|JPEG|gif|GIF)$/i)){
@@ -605,11 +620,13 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     
     Diabox.Renderable = new Class({
       Implements : Events,
-      initialize : function(target, title, diabox, class_name){
+      initialize : function(target, title, diabox, class_name, width, height){
         this.box = diabox;
         this.target = target;
         this.title = title;
         this.class_name = class_name;
+        if(width) this.override_width = parseInt(width)
+        if(height) this.override_height = parseInt(height)
         this.addEvent('ready', this.alert.bind(this));
       },
       render : Function.from(null),
@@ -624,7 +641,10 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       // if multiple elements are passed then wrap them with a div, otherwise return the element
       element : function(){
         if(Array.from(this.elements).length == 0) return undefined; // so the memoizing won't take affect.
-        return Array.from(this.elements).length > 1 ? new Element('div').adopt(this.elements) : Array.from(this.elements).pick();
+        var elem = Array.from(this.elements).length > 1 ? new Element('div').adopt(this.elements) : Array.from(this.elements).pick();
+        if(this.override_width) elem.setStyle('width', this.override_width);
+        if(this.override_height) elem.setStyle('height', this.override_height);
+        return elem;
       },
       
       // shrink the content to fit within the bounds of the diabox settings
@@ -707,8 +727,8 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       },
       finish_render : function(){
         var element = new Element('img', {src : this.target});
-        element.setStyles('styles', { width : [this.box.opt.image.max_width, this.image.width].min(),
-                                        height : [this.box.opt.image.max_height, this.image.height].max()});
+        element.setStyles('styles', { width : [this.box.opt.image.max_width, this.override_width || this.image.width].min(),
+                                        height : [this.box.opt.image.max_height, this.override_height || this.image.height].max()});
         this.set_content(element);
       },
       finish_failed_render : function(){
@@ -722,7 +742,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         if(!this.retrieved()){
           new Request.HTML({url : this.target, evalScripts : false, onSuccess : function(tree, elems, html, js){
             this.set_scripts(js);
-            this.set_content(elems);
+            this.set_content(tree);
           }.bind(this), onFailure : function(){
             this.set_content(null);
           }}).get();
@@ -737,18 +757,18 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
           this.set_content(new Element('iframe', {
             src : this.target,
             id : 'iframe_' + (new Date().getTime()),
-            width : this.width || this.box.opt.iframe.width,
-            height : this.height || this.box.opt.iframe.height,
+            width : this.override_width || this.width || this.box.opt.iframe.width,
+            height : this.override_height || this.height || this.box.opt.iframe.height,
             frameborder : 0
-          }).setStyles({width : this.box.opt.iframe.width, height : this.box.opt.iframe.height}));
+          }).setStyles({width : this.override_width || this.box.opt.iframe.width, height : this.override_height || this.box.opt.iframe.height}));
         }
       }
     });
   
     Diabox.GDocRenderable = new Class({
       Extends : Diabox.RemoteRenderable,
-      initialize : function(target, title, diabox, class_name){
-        this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, title, diabox, class_name);
+      initialize : function(target, title, diabox, class_name, width, height){
+        this.parent("http://docs.google.com/viewer?embedded=true&url=" + target, title, diabox, class_name, width, height);
         this.width = this.box.opt.gdoc.width;
         this.height = this.box.opt.gdoc.height;
       }
@@ -756,9 +776,9 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     
     Diabox.VimeoRenderable = new Class({
       Extends : Diabox.RemoteRenderable,
-      initialize : function(target, title, diabox, class_name){
+      initialize : function(target, title, diabox, class_name, width, height){
         target.test(/vimeo\.com\/(\d+)/)
-        this.parent("http://player.vimeo.com/video/" + RegExp.$1, title, diabox, class_name);
+        this.parent("http://player.vimeo.com/video/" + RegExp.$1, title, diabox, class_name, width, height);
         this.width = this.box.opt.vimeo.width;
         this.height = this.box.opt.vimeo.height;
       }
@@ -787,22 +807,42 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     
     Diabox.YoutubeRenderable = new Class({
       Extends : Diabox.Renderable,
-      initialize : function(target, title, diabox, class_name){
+      initialize : function(target, title, diabox, class_name, width, height){
         target.test(/v=([0-9a-zA-Z\-\_]+)(&|)/)
-        this.parent(RegExp.$1, title, diabox, class_name);
+        this.parent(RegExp.$1, title, diabox, class_name, width, height);
       },
       render : function(){
         if(!this.retrieved()){
-          this.set_content(new Element('div').set('html', '<object width="' + this.box.opt.youtube.width + '" height="' + this.box.opt.youtube.height + '">' + 
+          this.set_content(new Element('div').set('html', '<object width="' + (this.override_width || this.box.opt.youtube.width) + '" height="' + (this.override_height || this.box.opt.youtube.height) + '">' + 
                 '<param name="movie" value="http://www.youtube.com/v/' + this.target + '?fs=1&amp;hl=en_US"></param>' + 
                 '<param name="wmode" value="transparent"></param>' +
                 '<param name="allowFullScreen" value="true"></param>' + 
                 '<param name="allowscriptaccess" value="always"></param>' + 
-                '<embed src="http://www.youtube.com/v/' + this.target + '?fs=1&amp;hl=en_US" wmode="transparent" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="' + this.box.opt.youtube.width + '" height="' + this.box.opt.youtube.height + '"></embed>' + 
+                '<embed src="http://www.youtube.com/v/' + this.target + '?fs=1&amp;hl=en_US" wmode="transparent" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="' + (this.override_width || this.box.opt.youtube.width) + '" height="' + (this.override_height || this.box.opt.youtube.height) + '"></embed>' + 
                 '</object>'));
         }
       }
     });
+    
+    Diabox.SwfRenderable = new Class({
+      Extends : Diabox.Renderable,
+      render : function(){
+        if(!this.retrieved()){
+          var opts = Diabox.SwfRenderable.options(this.target) || {};
+          this.set_content(new Element('div').grab(new Swiff(this.target, Object.merge({
+            id : ("swiff_" + new Date().getTime()),
+            width : this.override_width || this.box.opt.swf.width,
+            height : this.override_height || this.box.opt.swf.height,
+            params : {
+              wMode : 'transparent', 
+              bgcolor : this.box.opt.swf.bg_color
+            }
+          }, opts))));
+        }
+      }
+    });
+    
+    Diabox.SwfRenderable.options = Function.from(null);
   }
   
 })(document.id || $);
