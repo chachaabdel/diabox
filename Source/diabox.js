@@ -77,7 +77,8 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         draggable : false,                      // is the box draggable
         draggable_class : 'draggable',          // the class to add when the box is draggable
         apply_renderable_class : true,          // when content is applied should it add the renderable key to the box (text, ajax, youtube, etc)
-        apply_gallery_class : true              // when a gallery is applied should the gallery name be added to the box
+        apply_gallery_class : true,             // when a gallery is applied should the gallery name be added to the box
+        apply_title_class : true
       },                                      
       gallery : {                             
         enabled : true,                         // allow galleries to be created and iterated through
@@ -92,7 +93,8 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         default_text : null,                    // a default title
         show : true,                            // show titles
         show_gallery_index : true,              // show the current page of the gallery (1 / 3), (3 / 5), etc
-        parent : null                           // the parent element of the title (id or element)
+        parent : null,                          // the parent element of the title (id or element)
+        box_class : 'with_title'
       },                                      
       overlay : {                             
         id : 'diabox_overlay',                  // id of the overlay
@@ -113,10 +115,10 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         width : 650,                            // the width of vimeo videos
         height: 350                             // the height of vimeo videos
       },
-      swf : {
-        width : 500,
-        height : 300,
-        bg_color : '#000000'
+      swf : {                                   
+        width : 500,                            // the default width of swf content
+        height : 300,                           // the default height of swf content
+        bg_color : '#000000'                    // the default background color of swf content
       },
       controls : {
         next_id : 'diabox_next',                // id of the next button
@@ -128,6 +130,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         close_text : 'close',                   // text of the close button (html ok)
         play_text : 'start / stop',             // text of the play button (html ok)
         show_close : true,                      // display the close button
+        show_play : false,                      // display the play button when a gallery is available
         enable_shortcuts : true,                // allow keyboard shortcuts, by default only ESC is implemented
         key_command : null,                     // function to call when a key command (not ESC) is fired. return false to stop propogation
         classes : 'diabox_control',             // class that's added to all control elements (prev, next, close, play)
@@ -212,7 +215,8 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     construct_renderable : function(target, title, width, height, key){
       var r = key ? [false, key] : this.cached_renderable(target);
       if(r[0]) return r[1];
-      return this.cache[r[1]][target] = new (this.renderable_classes[r[1]])({target : target, title : title, box : this, class_name : r[1], width : width, height : height});
+      var val = this.cache[r[1]][target] = new (this.renderable_classes[r[1]])({target : target, title : title, box : this, class_name : r[1], width : width, height : height});
+      return val;
     },
     construct_renderable_from_link : function(a){
       var r = this.cached_renderable(a.href);
@@ -299,10 +303,12 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     // set the title and handle gallery information
     set_title : function(text){
       this.title().empty();
-      this.title().adopt([
-        new Element('strong').set('html', text),
-        (this.current_content.gallery && this.opt.title.show_gallery_index ? new Element('em').set('html', "(" + (this.current_content.gallery.current_index + 1) + " / " + this.current_content.gallery.renderables().length + ")") : null)
-      ]);
+      if(text) {
+        this.title().adopt([
+          new Element('strong').set('html', text),
+          (this.current_content.gallery && this.opt.title.show_gallery_index ? new Element('em').set('html', "(" + (this.current_content.gallery.current_index + 1) + " / " + this.current_content.gallery.renderables().length + ")") : null)
+        ]);
+      }
     },
     
     // go to the next page in gallery
@@ -344,6 +350,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       this.set_loading();
       var key = this.parse_target(target_or_text_or_html_or_id);
       var r = key == 'text' ? new (this.renderable_classes[key])({target : target_or_text_or_html_or_id, title : title, box : this, class_name : 'text', width : width, height : height}) : this.construct_renderable(target_or_text_or_html_or_id, title, width, height);
+      
       r.render();
       return r;
     },
@@ -383,8 +390,10 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     clear_content : function(){
       this.box().removeClass('loading');
       this.content().empty();
+      this.set_title(null);
       if(this.current_content){
         this.current_content.after_remove();
+        this.box().removeClass(this.opt.title.box_class);
         if(this.current_content.class_name) this.box().removeClass(this.current_content.class_name);
         if(this.current_content.gallery) this.box().removeClass(this.current_content.gallery.name);
       } 
@@ -393,11 +402,13 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
   
     // apply a renderable to the window
     apply_content : function(renderable){
+
       this.clear_content();
       this.current_content = renderable;
       this.content().adopt(renderable.element());
       if(this.opt.box.apply_renderable_class) this.box().addClass(this.current_content.class_name);
       if(this.opt.box.apply_gallery_class && this.current_content.gallery) this.box().addClass(this.current_content.gallery.name);
+      if(this.opt.box.apply_title_class && this.current_content.has_title()) this.box().addClass(this.opt.title.box_class);
       this.fireEvent('diabox_content_applied');
       this.apply_static_elements();
       renderable.after_render();
@@ -411,7 +422,8 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         this.close().setStyle('display', 'none');
       
       if(this.opt.gallery.enabled && this.current_content.gallery){
-        $$(this.next(), this.prev(), this.play()).setStyle('display', '');
+        $$(this.next(), this.prev()).setStyle('display', '');
+        if(this.opt.controls.show_play) this.play().setStyle('display', '');
       } else {
         $$(this.next(), this.prev(), this.play()).setStyle('display', 'none');
       }
@@ -499,6 +511,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
   
     // turn target into a renderable key
     parse_target : function(target){
+     
       var key = null;
       if(this.opt.parser) key = this.opt.parser(target);
       if(key){return key};
@@ -568,7 +581,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     },
     // jump to the next content. if loop is enabled allow jumping from n-1 to 0
     next : function(){
-      if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index < this.renderables().length - 1)) {
+      if(this.box.current_content.gallery === this && this.can_next()) {
         this.box.set_loading();
         this.renderables()[(this.current_index < this.renderables().length - 1 ? ++this.current_index : (this.current_index = 0))].render();
         this.update_buttons();
@@ -579,7 +592,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     
     // jump to the prev content. if loop is enabled allow jumping from 0 ot n-1
     prev : function(){
-      if(this.box.current_content.gallery === this && (this.box.opt.gallery.loop || this.current_index > 0)) {
+      if(this.box.current_content.gallery === this && this.can_prev()) {
         this.box.set_loading();
         this.renderables()[(this.current_index > 0 ? --this.current_index : (this.current_index = this.renderables().length - 1))].render();
         this.update_buttons();
@@ -668,6 +681,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       if(this.options.height) this.override_height = parseInt(this.options.height);
       this.addEvent('ready', this.alert.bind(this));
     },
+    has_title : function(){ return this.title && this.title.length > 0;},
     render : Function.from(null),
     // after render callback. by default calls any scripts that may be present.
     after_render : function(){ if(this.scripts){eval(this.scripts);}},
@@ -742,6 +756,10 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       this.fireEvent('ready');
     },
     
+    set_scripts : function(scripts){
+      this.scripts = scripts;
+    },
+    
     Memoize : ['element', 'dimensions']
   });
 
@@ -766,8 +784,12 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     },
     finish_render : function(){
       var element = new Element('img', {src : this.target});
-      element.setStyles('styles', { width : [this.box.opt.image.max_width, this.override_width || this.image.width].min(),
+      element.setStyles({ width : [this.box.opt.image.max_width, this.override_width || this.image.width].min(),
                                       height : [this.box.opt.image.max_height, this.override_height || this.image.height].max()});
+      if(this.gallery){
+        element.addEvent('click', function(){ this.gallery.next();}.bind(this));
+        element.setStyle('cursor', 'pointer');
+      }
       this.set_content(element);
     },
     finish_failed_render : function(){
