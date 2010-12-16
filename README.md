@@ -74,89 +74,98 @@ Options
 Diabox gives you a multitude of options. Rather than explaining each and every one, here's a copy of the source:
 
 	options : {
-		parser : null,                              // pass in a function that takes a target (url, dom element, etc) and passes back a renderable key
-		parent : null,                              // the element that diabox and it's overlay are children of; null will use the body element
-		rel_target : /^(dia|light)box/,             // the pattern to match when analyzing links on the site.
-		error_text : '<p style="text-align:center;padding:10px;">Sorry, there was an error retrieving the content.<br />Please try again later.</p>',
-		iframe : {                              
-			width : 850,                            // the content width of an iframe renderable
-			height: 575                             // the content height of an iframe renderable
-		},                                      
-		image : {                               
-			maxWidth : 850,                         // the max image width of an image renderable
-			maxHeight : 575                         // the max image height of an image renderable
-		},                                      
-		box : {                                 
-			id : 'diabox',                          // the id of the modal window
-			content_id : 'diabox_content',          // the id of the content div inside the modal window
-			loading_id : 'diabox_loading',          // the id of the loading div that get's injected while no other content is present
-			fade_duration : 400,                    // the fade in and fade out duration for the modal window
-			resize_duration : 400,                  // the duration when the box is resizing before applying the next content
-			content_fade_duration : 200,            // the duration it takes for the content to appear after being added to the modal window
-			fade_transition : Fx.Transitions.Sine.easeOut,
-			resize_transition : Fx.Transitions.Back.easeOut,
-			content_fade_transition : Fx.Transitions.Sine.easeOut,
-			classes : '',                           // classes to add to the modal window
-			loading_class : 'loading',              // class that's added to the modal window when data is loading.
-			max_width : 900,                        // the maximum width the modal window can be
-			max_height : 700,                       // the maximum height the modal window can be
-			min_width: 50,                          // the minimum width the modal window can be
-			min_height : 80,                        // the minimum height the modal window can be
-			draggable : false,                      // is the box draggable
-			draggable_class : 'draggable',          // the class to add when the box is draggable
-			apply_renderable_class : true,          // when content is applied should it add the renderable key to the box (text, ajax, youtube, etc)
-			apply_gallery_class : true              // when a gallery is applied should the gallery name be added to the box
-		},                                      
-		gallery : {                             
-			enabled : true,                         // allow galleries to be created and iterated through
-			box_class : 'diabox_gallery',           // the class that gets added to the modal window when a gallery is present
-			slideshow_class : 'diabox_slideshow',   // the class that gets added to the modal window when a slideshow is running
-			slideshow_duration : 5000,              // the amount of time each content in the gallery stays present
-			autostart : false,                      // start the slideshow whenever a gallery is shown
-			loop : false                            // allow iteration from first to last and last to first  
-		},                                      
-		title : {                               
-			id : 'diabox_title',                    // the id of the title element
-			default_text : null,                    // a default title
-			show : true,                            // show titles
-			show_gallery_index : true,              // show the current page of the gallery (1 / 3), (3 / 5), etc
-			parent : null                           // the parent element of the title (id or element)
-		},                                      
-		overlay : {                             
-			id : 'diabox_overlay',                  // id of the overlay
-			fade_duration : 400,                    // amount of time for the overlay to fade in
-			opacity : 0.7,                          // the end opacity of the overlay
-			transition : Fx.Transitions.Sine.easeOut // the transition to use when the overlay is appearing
-		},
-		gdoc : {
-			width : 850,                            // the width of a pdf, tiff, or ppt
-			height : 500                            // the height of a pdf, tiff, or ppt
-		},
-		youtube : {
-			width: 650,                             // the width of youtube videos
-			height: 350                             // the height of youtube videos
-		},
-		vimeo : {
-			width : 650,                            // the width of vimeo videos
-			height: 350                             // the height of vimeo videos
-		},
-		controls : {
-			next_id : 'diabox_next',                // id of the next button
-			prev_id : 'diabox_prev',                // id of the previous button
-			close_id : 'diabox_close',              // id of the close button
-			play_id : 'diabox_play',                // id of the play button
-			next_text : 'next',                     // text of the next button (html ok)
-			prev_text : 'prev',                     // text of the prev button (html ok)
-			close_text : 'close',                   // text of the close button (html ok)
-			play_text : 'start / stop',             // text of the play button (html ok)
-			show_close : true,                      // display the close button
-			enable_shortcuts : true,                // allow keyboard shortcuts, by default only ESC is implemented
-			key_command : null,                     // function to call when a key command (not ESC) is fired. return false to stop propogation
-			classes : 'diabox_control',             // class that's added to all control elements (prev, next, close, play)
-			disabled_class : 'diabox_disabled',     // the class that's added to control elements when they should be disabled
-			parent : null                           // the parent of the control elements, by default the modal window
-		}
-	}
+      parser : null,                            // pass in a function that takes a target (url, dom element, etc) and passes back a renderable key
+      parent : null,                            // the element that diabox and it's overlay are children of; null will use the body element
+      rel_target : /^(dia|light)box/,           // the pattern to match when analyzing links on the site.
+      error_text : '<p style="text-align:center;padding:10px;">Sorry, there was an error retrieving the content.<br />Please try again later.</p>',
+      iframe : {                              
+        width : 850,                            // the content width of an iframe renderable
+        height: 575                             // the content height of an iframe renderable
+      },                                      
+      image : {                               
+        maxWidth : 850,                         // the max image width of an image renderable
+        maxHeight : 575                         // the max image height of an image renderable
+      },                                      
+      box : {                                 
+        id : 'diabox',                          // the id of the modal window
+        content_id : 'diabox_content',          // the id of the content div inside the modal window
+        loading_id : 'diabox_loading',          // the id of the loading div that get's injected while no other content is present
+        fade_duration : 400,                    // the fade in and fade out duration for the modal window
+        resize_duration : 400,                  // the duration when the box is resizing before applying the next content
+        content_fade_duration : 200,            // the duration it takes for the content to appear after being added to the modal window
+        fade_transition : Fx.Transitions.Sine.easeOut,
+        resize_transition : Fx.Transitions.Back.easeOut,
+        content_fade_transition : Fx.Transitions.Sine.easeOut,
+        classes : '',                           // classes to add to the modal window
+        loading_class : 'loading',              // class that's added to the modal window when data is loading.
+        max_width : 900,                        // the maximum width the modal window can be
+        max_height : 700,                       // the maximum height the modal window can be
+        min_width: 50,                          // the minimum width the modal window can be
+        min_height : 80,                        // the minimum height the modal window can be
+        draggable : false,                      // is the box draggable
+        draggable_class : 'draggable',          // the class to add when the box is draggable
+        apply_renderable_class : true,          // when content is applied should it add the renderable key to the box (text, ajax, youtube, etc)
+        apply_gallery_class : true,             // when a gallery is applied should the gallery name be added to the box
+        apply_title_class : true
+      },                                      
+      gallery : {                             
+        enabled : true,                         // allow galleries to be created and iterated through
+        box_class : 'diabox_gallery',           // the class that gets added to the modal window when a gallery is present
+        slideshow_class : 'diabox_slideshow',   // the class that gets added to the modal window when a slideshow is running
+        slideshow_duration : 5000,              // the amount of time each content in the gallery stays present
+        autostart : false,                      // start the slideshow whenever a gallery is shown
+        loop : false                            // allow iteration from first to last and last to first  
+      },                                      
+      title : {                               
+        id : 'diabox_title',                    // the id of the title element
+        default_text : null,                    // a default title
+        show : true,                            // show titles
+        show_gallery_index : true,              // show the current page of the gallery (1 / 3), (3 / 5), etc
+        parent : null,                          // the parent element of the title (id or element)
+        box_class : 'with_title'
+      },                                      
+      overlay : {                             
+        id : 'diabox_overlay',                  // id of the overlay
+        fade_duration : 400,                    // amount of time for the overlay to fade in
+        opacity : 0.7,                          // the end opacity of the overlay
+        transition : Fx.Transitions.Sine.easeOut, // the transition to use when the overlay is appearing
+        click_to_close : true
+      },
+      gdoc : {
+        width : 850,                            // the width of a pdf, tiff, or ppt
+        height : 500                            // the height of a pdf, tiff, or ppt
+      },
+      youtube : {
+        width: 650,                             // the width of youtube videos
+        height: 350                             // the height of youtube videos
+      },
+      vimeo : {
+        width : 650,                            // the width of vimeo videos
+        height: 350                             // the height of vimeo videos
+      },
+      swf : {                                   
+        width : 500,                            // the default width of swf content
+        height : 300,                           // the default height of swf content
+        bg_color : '#000000'                    // the default background color of swf content
+      },
+      controls : {
+        next_id : 'diabox_next',                // id of the next button
+        prev_id : 'diabox_prev',                // id of the previous button
+        close_id : 'diabox_close',              // id of the close button
+        play_id : 'diabox_play',                // id of the play button
+        next_text : 'next',                     // text of the next button (html ok)
+        prev_text : 'prev',                     // text of the prev button (html ok)
+        close_text : 'close',                   // text of the close button (html ok)
+        play_text : 'start / stop',             // text of the play button (html ok)
+        show_close : true,                      // display the close button
+        show_play : false,                      // display the play button when a gallery is available
+        enable_shortcuts : true,                // allow keyboard shortcuts, by default only ESC is implemented
+        key_command : null,                     // function to call when a key command (not ESC) is fired. return false to stop propogation
+        classes : 'diabox_control',             // class that's added to all control elements (prev, next, close, play)
+        disabled_class : 'diabox_disabled',     // the class that's added to control elements when they should be disabled
+        parent : null                           // the parent of the control elements, by default the modal window
+      }
+    }
 
 Creating Your Own Renderable
 ---
