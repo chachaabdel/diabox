@@ -55,8 +55,8 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         height: 575                             // the content height of an iframe renderable
       },                                      
       image : {                               
-        maxWidth : 850,                         // the max image width of an image renderable
-        maxHeight : 575                         // the max image height of an image renderable
+        max_width : 850,                         // the max image width of an image renderable
+        max_height : 575                         // the max image height of an image renderable
       },                                      
       box : {                                 
         id : 'diabox',                          // the id of the modal window
@@ -115,10 +115,10 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         width : 650,                            // the width of vimeo videos
         height: 350                             // the height of vimeo videos
       },
-      swf : {                                   
-        width : 500,                            // the default width of swf content
-        height : 300,                           // the default height of swf content
-        bg_color : '#000000'                    // the default background color of swf content
+      swf : {
+        width : 500,
+        height : 300,
+        bg_color : '#000000'
       },
       controls : {
         next_id : 'diabox_next',                // id of the next button
@@ -130,7 +130,6 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         close_text : 'close',                   // text of the close button (html ok)
         play_text : 'start / stop',             // text of the play button (html ok)
         show_close : true,                      // display the close button
-        show_play : false,                      // display the play button when a gallery is available
         enable_shortcuts : true,                // allow keyboard shortcuts, by default only ESC is implemented
         key_command : null,                     // function to call when a key command (not ESC) is fired. return false to stop propogation
         classes : 'diabox_control',             // class that's added to all control elements (prev, next, close, play)
@@ -422,8 +421,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
         this.close().setStyle('display', 'none');
       
       if(this.opt.gallery.enabled && this.current_content.gallery){
-        $$(this.next(), this.prev()).setStyle('display', '');
-        if(this.opt.controls.show_play) this.play().setStyle('display', '');
+        $$(this.next(), this.prev(), this.play()).setStyle('display', '');
       } else {
         $$(this.next(), this.prev(), this.play()).setStyle('display', 'none');
       }
@@ -443,7 +441,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       var fn = function(){  
         var size = this.cumulative_size(renderable);
         if(size.width > this.opt.box.max_width || size.height > this.opt.box.max_height) {
-          renderable.shrink();
+          renderable.shrink(size.width <= this.opt.box.max_width);
           size = this.cumulative_size(renderable);
         }
         if(size.width < this.opt.box.min_width || size.height < this.opt.box.min_height) {
@@ -695,19 +693,22 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     element : function(){
       if(Array.from(this.elements).length == 0) return undefined; // so the memoizing won't take affect.
       var elem = Array.from(this.elements).length > 1 ? new Element('div').adopt(this.elements) : Array.from(this.elements).pick();
+      
       if(this.override_width) elem.setStyle('width', this.override_width);
       if(this.override_height) elem.setStyle('height', this.override_height);
       return elem;
     },
     
     // shrink the content to fit within the bounds of the diabox settings
-    shrink : function(){
+    shrink : function(height_only){
       var dim = this.dimensions();
       this.unmemoize('dimensions');
       var padding = this.box.content_padding();
-      this.element().setStyle('width', this.box.opt.box.max_width - padding.width - dim.computedLeft - dim.computedRight);
-      if(dim.totalHeight > this.box.opt.box.max_height)
+      if(!height_only) this.element().setStyle('width', this.box.opt.box.max_width - padding.width - dim.computedLeft - dim.computedRight);
+      
+      if(height_only || dim.totalHeight > this.box.opt.box.max_height)
       {
+        this.element().setStyle('width', dim.totalWidth + padding.width); // handle scrollbar
         this.element().setStyle('height', this.box.opt.box.max_height - padding.height - dim.computedTop, dim.computedBottom);
         this.element().setStyle('overflow-y', 'auto');
         this.unmemoize('dimensions');
