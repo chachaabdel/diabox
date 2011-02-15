@@ -211,10 +211,10 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
     },
     
     // construct a new renderable object unless one's already built and stored in the cache
-    construct_renderable : function(target, title, width, height, key){
+    construct_renderable : function(target, title, width, height, anchor, key){
       var r = key ? [false, key] : this.cached_renderable(target);
       if(r[0]) return r[1];
-      var val = this.cache[r[1]][target] = new (this.renderable_classes[r[1]])({target : target, title : title, box : this, class_name : r[1], width : width, height : height});
+      var val = this.cache[r[1]][target] = new (this.renderable_classes[r[1]])({target : target, title : title, box : this, class_name : r[1], width : width, height : height, anchor : anchor});
       return val;
     },
     construct_renderable_from_link : function(a){
@@ -222,11 +222,14 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       if(r[0]) return r[1];
       var w = null;
       var h = null;
+      var an = null;
       if(a.rel.test(/\[(\d+)?x(\d+)?\]/)){
         w = RegExp.$1;
         h = RegExp.$2;
       }
-      return this.construct_renderable(a.href, a.title, w, h, r[1]);
+      if(a.rel.test(/\#(.+)$/))
+        an = RegExp.$1;
+      return this.construct_renderable(a.href, a.title, w, h, an, r[1]);
     },
     construct_gallery : function(name){
       this.galleries[name] = this.galleries[name] || new Diabox.Gallery(name, this);
@@ -675,11 +678,13 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
       this.target = this.options.target;
       this.title = this.options.title;
       this.class_name = this.options.class_name;
+      this.anchor = this.options.anchor;
       if(this.options.width) this.override_width = parseInt(this.options.width);
       if(this.options.height) this.override_height = parseInt(this.options.height);
       this.addEvent('ready', this.alert.bind(this));
     },
     has_title : function(){ return this.title && this.title.length > 0;},
+    has_anchor : function(){ return this.anchor && this.anchor.length > 0;},
     render : Function.from(null),
     // after render callback. by default calls any scripts that may be present.
     after_render : function(){ if(this.scripts){eval(this.scripts);}},
@@ -809,15 +814,38 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
           this.set_content(null);
         }.bind(this)}).get();
       }
+    },
+    after_render : function(){
+      this.parent();
+      this.find_anchor();
+    },
+    find_anchor : function(){
+      if(!this.has_anchor()) return;
+      var elem = $$('#' + this.box.box.id + ' a[name="' + this.anchor + '"]').pick();
+      if(elem){
+        var off = elem.getPosition(this.box.box());
+        this.box.box().scrollTo(off.x, off.y);  
+      }
     }
   });
 
   Diabox.RemoteRenderable = new Class({
     Extends : Diabox.Renderable,
+    construct_url : function(){
+
+      if(!this.has_anchor()) return this.target;
+      var idx = this.target.indexOf('?');
+      if(idx < 0) idx = this.target.length;
+      if(this.target.substring(idx - 1, idx) == '/'){
+        this.target = this.target.substring(0, idx-1) + this.target.substring(idx, this.target.length);
+        idx -= 1;
+      }
+      return this.target.substring(0, idx) + '#' + this.anchor + this.target.substring(idx, this.target.length);
+    },
     render : function(){
       if(!this.retrieved()){
         this.set_content(new Element('iframe', {
-          src : this.target,
+          src : this.construct_url(),
           id : 'iframe_' + (new Date().getTime()),
           width : this.override_width || this.width || this.box.opt.iframe.width,
           height : this.override_height || this.height || this.box.opt.iframe.height,
