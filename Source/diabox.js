@@ -807,7 +807,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
           this.set_content(tree);
         }.bind(this), onFailure : function(){
           this.set_content(null);
-        }}).get();
+        }.bind(this)}).get();
       }
     }
   });
