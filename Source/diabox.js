@@ -931,7 +931,7 @@ provides: [Diabox, Diabox.Gallery, Diabox.Renderable]
           }
         })));
       }
-    },
+    }
     /*remote : function(){
       if(!this.swiff) return undefined;
       return Swiff.remote.apply(this.swiff, [this.swiff].concat(arguments))
