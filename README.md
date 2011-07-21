@@ -1,8 +1,6 @@
 Diabox
 ===
 
-![logo](http://files.mikeonrails.com/diabox/img/logo.png)
-
 Diabox is another modal window solution. It provides support for Images, Local HTML, Remote Pages, PDF's, Powerpoints, TIFF's, Youtube Videos, Vimeo Videos, SWF, Elements, Inline Content, and Raw Text. It's extremely customizable and even allows custom extensions of the provided Renderable interface. Diabox provides you with: Diabox, Diabox.Gallery, and Diabox.Renderable.
 
 How to Use 
